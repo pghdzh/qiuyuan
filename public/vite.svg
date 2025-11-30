@@ -1,0 +1,14 @@
+<!-- 仇 字 SVG（适合 favicon / 图标） -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img"
+  aria-label="仇">
+  <!-- 背景：圆角方块，可去掉以得到透明背景 -->
+  <rect width="128" height="128" rx="18" fill="#07251f" />
+
+  <!-- 主字：使用常见中文字体族，居中，粗体，带描边提升小尺寸可读性 -->
+  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
+    font-family="PingFang SC, Noto Sans SC, 'Microsoft YaHei', 'Hiragino Sans GB', STHeiti, serif"
+    font-weight="800" font-size="78" fill="#ffffff" stroke="#0b3f33" stroke-width="2"
+    paint-order="stroke fill">
+    仇
+  </text>
+</svg>
