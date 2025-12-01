@@ -150,7 +150,7 @@
       <!-- 通缉卡（左图、右描述；无按钮） -->
       <section id="wanted-slim" class="card wanted-slim-board">
         <div class="card-head">
-          <h2>通缉令（简洁）</h2>
+          <h2>通缉令</h2>
         </div>
 
         <ul class="wanted-slim-list" aria-label="通缉人物">
