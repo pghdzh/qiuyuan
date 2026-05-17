@@ -40,10 +40,11 @@ export async function sendMessageToHui(
     }
 
     const { character = "qiuyuan", additionalPrompt, temperature } = options;
-
+    const MAX_HISTORY_ITEMS = 50;
+    const trimmedHistory = history.slice(-MAX_HISTORY_ITEMS);
     const requestBody: any = {
       inputMessage,
-      history,
+      history: trimmedHistory, // 使用裁剪后的历史
       character,
     };
 

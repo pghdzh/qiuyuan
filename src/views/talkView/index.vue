@@ -783,7 +783,7 @@ onBeforeUnmount(() => {
     flex: 1;
     overflow-y: auto;
     padding: 12px 0 20px;
-    max-height: calc(100vh - 320px);
+    max-height: calc(100vh - 240px);
     display: flex;
     flex-direction: column;
     gap: 20px;
