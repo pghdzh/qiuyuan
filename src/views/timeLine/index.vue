@@ -1,30 +1,67 @@
 <template>
   <div class="megumi-page" aria-live="polite">
+    <!-- 动态氛围背景 -->
+    <div class="bg-atmosphere">
+      <!-- 月光层（双层月晕） -->
+      <div class="moon-main"></div>
+      <div class="moon-sub"></div>
+
+      <!-- 流萤（六只） -->
+      <div class="firefly firefly-1"></div>
+      <div class="firefly firefly-2"></div>
+      <div class="firefly firefly-3"></div>
+      <div class="firefly firefly-4"></div>
+      <div class="firefly firefly-5"></div>
+      <div class="firefly firefly-6"></div>
+
+      <!-- 剑气流光（三道不同角度与速度） -->
+      <div class="sword-light sword-light-1"></div>
+      <div class="sword-light sword-light-2"></div>
+      <div class="sword-light sword-light-3"></div>
+
+      <!-- 墨滴涟漪 -->
+      <div class="ink-drop ink-drop-1"></div>
+      <div class="ink-drop ink-drop-2"></div>
+
+      <!-- 斗笠剪影 -->
+      <div class="hat-silhouette"></div>
+
+      <!-- 细密雨丝 -->
+      <div class="rain"></div>
+
+      <!-- 地面雾气 -->
+      <div class="mist"></div>
+    </div>
+
     <main class="container" ref="mainContainer">
       <!-- HERO 区域 -->
       <header class="hero" role="banner">
         <div class="left-col">
-          <button class="avatar-card">
-            <picture class="avatar-wrap">
+          <div class="avatar-card">
+            <div class="avatar-wrap">
               <img
                 src="@/assets/images1/qiuyuan-slty (17).webp"
                 class="avatar"
+                alt="仇远"
                 loading="lazy"
                 decoding="async"
               />
-            </picture>
+            </div>
             <div class="avatar-meta">
               <span class="avatar-badge">共鸣能力：藏锋于竹</span>
             </div>
-          </button>
+          </div>
         </div>
+
         <div class="right-col" ref="metaCard">
           <div class="hero-panel">
             <h1 class="name">
               仇远
               <span class="jp">（前明庭镇抚司千户，双眼失明的独行剑客）</span>
             </h1>
-            <p class="subtitle">布衣之侠不求冠绝江湖、高居庙堂，但求手中之剑百折不摧，挥之有道。</p>
+            <p class="subtitle">
+              布衣之侠不求冠绝江湖、高居庙堂，但求手中之剑百折不摧，挥之有道。
+            </p>
             <p class="lead">
               少时仇人无算，长时办差拿人，谁料蒙冤下狱，如今浪迹天涯。
             </p>
@@ -35,16 +72,15 @@
       <!-- 内容卡片区 -->
       <section id="personality" class="card personality">
         <div class="card-head">
-          <h2>核心机制</h2>
+          <h2> 核心机制</h2>
         </div>
         <ul class="traits">
           <li>
-            仇远施放普攻第三段、闪避反击时，获取【挑灯问剑】。【挑灯问剑】达到200/400/600点时，仇远分别解锁普攻答剑·质黑相青/【竹照】状态/【淋漓醉墨】状态。
+            仇远施放普攻第三段、闪避反击时，获取【挑灯问剑】。达到200/400/600点分别解锁答剑·质黑相青/【竹照】/【淋漓醉墨】状态。
           </li>
           <li>
-            【淋漓醉墨】状态下，仇远无法获得【挑灯问剑】，但可以消耗【挑灯问剑】施放技能造成更多伤害。
+            【淋漓醉墨】状态下，仇远无法获得【挑灯问剑】，但可消耗点数施放技能造成更多伤害。
           </li>
-
           <li style="font-weight: bold">输出流程：</li>
           <li>基础流程：Q-E-R-AA-Z</li>
           <li>
@@ -53,32 +89,99 @@
         </ul>
       </section>
 
-      <section id="resonance-status" class="card overview">
+      <section id="resonance-status" class="card resonance-overview">
+        <!-- 顶部光晕装饰条 -->
         <div class="card-head">
           <h2>共鸣状况</h2>
+          <span class="head-line"></span>
         </div>
+
+        <!-- 主体双栏布局 -->
         <div class="two-col">
           <div class="text-block">
-            <p>
-              「明庭谛天鉴监正杂录——书信编」<br />
-              东园兄台钧鉴，前日镇抚司转三法司并华胥研究院行文谛天鉴，弟便立刻责成重州州监协办，清点重州共鸣者名录，现已查明此人和重州岁主鸣式并无关联。<br />
-              据谛天鉴查，此人共鸣史距今十五年有余，即所谓“成竹于胸，裁竹为锋”，虽双眼不能视物，却有“心镜”，能透过心中具象化的“竹林”感知到外界的事物，勘破对手的心境和破绽，甚至能将“心镜”外化成虚景，不容小觑。<br />
-              另外，他的剑术似乎更源自于他自身的技艺而非来自于共鸣能力，能很明显地感觉到，他无时无刻不在克制着自己的共鸣能力。据他自己说，那随身的竹壶中装着一种能够催动他“心镜”和共鸣力的药液，据说是重州一位江湖郎中所配，只在必要时才会饮用。关于此事，兄可另行转交研究院解析其成分。<br />
-              至于此人详细的测试数据，兄可静候研究院报告……<br />
-              ——东园注：正式报告登记明白就好，一切都以谛天鉴的意思为准……哎，老林他还是这么说话文绉绉的。
-            </p>
+            <!-- 频谱检验报告 -->
+            <article class="report-section">
+              <h3 class="report-title">频谱检验报告</h3>
+              <div class="report-meta">明庭谛天鉴监正杂录 — 书信编</div>
+
+              <p class="report-content">
+                <span class="highlight">东园兄台钧鉴</span
+                >，前日镇抚司转三法司并华胥研究院行文谛天鉴，弟便立刻责成重州州监协办，清点重州共鸣者名录，现已查明此人和重州岁主鸣式并无关联。
+              </p>
+              <p class="report-content">
+                据谛天鉴查，此人共鸣史距今十五年有余，即所谓<span
+                  class="emphasis"
+                  >“成竹于胸，裁竹为锋”</span
+                >，虽双眼不能视物，却有<span class="emphasis">“心镜”</span
+                >，能透过心中具象化的“竹林”感知到外界的事物，勘破对手的心境和破绽，甚至能将“心镜”外化成虚景，不容小觑。
+              </p>
+              <p class="report-content">
+                另外，他的剑术似乎更源自于他自身的技艺而非来自于共鸣能力，能很明显地感觉到，他无时无刻不在克制着自己的共鸣能力。据他自己说，那随身的竹壶中装着一种能够催动他“心镜”和共鸣力的药液，据说是重州一位江湖郎中所配，只在必要时才会饮用。关于此事，兄可另行转交研究院解析其成分。
+              </p>
+              <p class="report-content">
+                至于此人详细的测试数据，兄可静候研究院报告……
+              </p>
+              <div class="postscript">
+                <span>——东园注：</span
+                >正式报告登记明白就好，一切都以谛天鉴的意思为准……哎，老林他还是这么说话文绉绉的。
+              </div>
+            </article>
+
+            <!-- 分割光带 -->
+            <div class="divider-light"></div>
+
+            <!-- 超频诊断报告 -->
+            <article class="report-section">
+              <h3 class="report-title">超频诊断报告</h3>
+              <div class="report-meta">明庭谛天鉴监正杂录 — 书信编</div>
+
+              <p class="report-content">
+                ……数日以来，以弟观之，与其说他不使用共鸣能力，不如说他始终刻意制压自己不去使用它。而关于这能力本身，他自己三缄其口，只能从研究院的报告中略窥一二：
+              </p>
+              <ul class="diagnosis-list">
+                <li>
+                  受试人员波形检测呈现椭圆形波动，时域表示稳定，未见异常波形。
+                </li>
+                <li>
+                  当前超频临界值<span class="emphasis">极高</span
+                  >，稳定性高，无超频风险。
+                </li>
+                <li>无过往超频史，无需心理辅导……</li>
+              </ul>
+              <p class="report-content">
+                备注：受试人员自述曾多有犯案，以武犯禁，而语气极为平静，建议刑部并重州地方查明。
+              </p>
+              <p class="report-content">
+                ……然而我看此人似无杀意，镇浮沉静，而其剑术之高超，遍观明庭，少有敌手，可为镇抚司栋梁。竟有三法司案卷所载以武犯禁情事，实难置信。弟已秉呈礼部，陈明利害，东园兄若用此人，想必于礼部处并无大碍。
+              </p>
+              <div class="postscript">
+                <span>——东园注：</span
+                >超频这种事，自然是越稳定越好，不过这报告看着，是不是有点太波澜不惊了……
+              </div>
+            </article>
           </div>
         </div>
-      </section>
 
-      <!-- 新增三大主题区域 -->
-      <section id="food" class="card special-section">
+        <!-- 背景动态光点（纯装饰） -->
+        <div class="bg-spark spark-1"></div>
+        <div class="bg-spark spark-2"></div>
+      </section>
+      <!-- 杯中物 -->
+      <section id="food" class="card special-section qiuyuan-item item-cup">
         <div class="card-head">
           <h2>杯中物</h2>
+          <span class="head-line"></span>
         </div>
         <div class="content two-col">
           <div class="img-area">
-            <img src="./img/item1.png" loading="lazy" decoding="async" />
+            <div class="img-frame">
+              <img
+                src="./img/item1.png"
+                loading="lazy"
+                decoding="async"
+                alt="竹筒"
+              />
+            </div>
           </div>
           <div class="text-block">
             <p>
@@ -89,70 +192,112 @@
             </p>
           </div>
         </div>
+        <div class="card-ambient ambient-left"></div>
       </section>
-      <section id="shattered-crystal" class="card special-section">
+
+      <!-- 铁中剑 -->
+      <section
+        id="shattered-crystal"
+        class="card special-section qiuyuan-item item-sword"
+      >
         <div class="card-head">
           <h2>铁中剑</h2>
+          <span class="head-line"></span>
         </div>
         <div class="content two-col">
           <div class="img-area">
-            <img src="./img/item2.png" loading="lazy" decoding="async" />
+            <div class="img-frame">
+              <img
+                src="./img/item2.png"
+                loading="lazy"
+                decoding="async"
+                alt="信物"
+              />
+            </div>
           </div>
           <div class="text-block">
             <p>
               仇远平日佩戴的明庭镇抚司信物，按理他早就应该褪下这身公服，信物也应被没收。只是似乎因为有人在明庭暗中帮了他一把，最终让他留下了这一切。
             </p>
-            <p>“……我将剑交到你们手中，百官各州，凡见此物，如同见我。”</p>
+            <p class="sword-quote">
+              “……我将剑交到你们手中，百官各州，凡见此物，如同见我。”
+            </p>
           </div>
         </div>
+        <div class="card-ambient ambient-right"></div>
       </section>
 
-      <section id="cyclic-clock" class="card special-section">
+      <!-- 竹中声 -->
+      <section
+        id="cyclic-clock"
+        class="card special-section qiuyuan-item item-bamboo"
+      >
         <div class="card-head">
           <h2>竹中声</h2>
+          <span class="head-line"></span>
         </div>
         <div class="content two-col">
           <div class="img-area">
-            <img src="./img/item3.png" loading="lazy" decoding="async" />
+            <div class="img-frame">
+              <img
+                src="./img/item3.png"
+                loading="lazy"
+                decoding="async"
+                alt="聆听"
+              />
+            </div>
           </div>
           <div class="text-block">
             <p>他对于这个世界的第一印象，不是眼看的，而是听到的。</p>
-
             <p>
               他听到父母的无奈，听到重州山林中无数毛竹的空洞，听到刀和剑，听到师父的血，听到仇人的怒号。
             </p>
             <p>
               后来，他听到光亮，听到明庭里数不清的明争暗斗，听到贪官墨吏的告饶，听到一场阴谋，听到另一种仇恨和希望。
             </p>
-            <p>
+            <p class="bamboo-essence">
               他看不到，但他一切都听得清楚。因为有许多声音，在他听到时，它就已经在那里了。如同剑生于铁，玉生于石，音生于竹。
             </p>
           </div>
         </div>
+        <div class="card-ambient ambient-left"></div>
       </section>
 
-      <section id="collective-album" class="card special-section">
+      <!-- 重州麻辣豆腐 -->
+      <section
+        id="collective-album"
+        class="card special-section qiuyuan-item item-tofu"
+      >
         <div class="card-head">
           <h2>重州麻辣豆腐</h2>
+          <span class="head-line"></span>
         </div>
         <div class="content two-col">
           <div class="img-area">
-            <img src="./img/food.png" loading="lazy" decoding="async" />
+            <div class="img-frame">
+              <img
+                src="./img/food.png"
+                loading="lazy"
+                decoding="async"
+                alt="麻辣豆腐"
+              />
+            </div>
           </div>
           <div class="text-block">
             <p>
               过去当差时，仇远和他的弟兄们日夜兼程，风餐露宿，没什么机会吃顿好饭，即便是到了外地的馆子住下，也要因为防备而亲自下厨做饭。而出身于重州的仇远早年间也恰恰懂得几个小菜，鲜香麻辣，最是解馋下饭，讲究的就是畅快。
             </p>
-            <p>“好好吃饭，好好活着。</p>
+            <p class="tofu-wisdom">“好好吃饭，好好活着。”</p>
           </div>
         </div>
+        <div class="card-ambient ambient-right"></div>
       </section>
-      <!-- 通缉卡（左图、右描述；无按钮） -->
+
+      <!-- 通缉令 -->
       <section id="wanted-slim" class="card wanted-slim-board">
         <div class="card-head">
-          <h2>通缉令</h2>
+          <h2>📋 通缉令</h2>
         </div>
-
         <ul class="wanted-slim-list" aria-label="通缉人物">
           <li class="wanted-slim-item">
             <figure class="ws-thumb">
@@ -168,19 +313,13 @@
               <span class="staple staple-top"></span>
               <span class="staple staple-bottom"></span>
             </figure>
-
             <div class="ws-info">
               <h3 class="ws-name">伤痕</h3>
               <p class="ws-brief">
-                残星会的会监之一。 外号“黑羊”。<br />
-
-                非常疯狂，享受混乱与破坏，以他人的痛苦为乐。<br />
-
-                曾在瑝珑跟踪并试探主角（漂泊者），后在今州的「瑝览类书」事件中被主角和今汐联手击败，被关押在今州大牢一年多，后越狱被仇远追杀中。
+                残星会会监，外号“黑羊”。极度疯狂，享受混乱与破坏。曾在瑝珑跟踪漂泊者，后在今州被击败关押，越狱后正被仇远追杀。
               </p>
             </div>
           </li>
-
           <li class="wanted-slim-item">
             <figure class="ws-thumb">
               <img
@@ -195,14 +334,10 @@
               <span class="staple staple-top"></span>
               <span class="staple staple-bottom"></span>
             </figure>
-
             <div class="ws-info">
               <h3 class="ws-name">哥舒临</h3>
               <p class="ws-brief">
-                夜归的前任将军。<br />
-                仇远曾接到追杀还是伍长的哥舒临的命令，但仇远经过调查认为其并非恶徒心善放走了他。<br>
-                后在“弯刀之役”中，于北落野与强敌无相燹主决战。为了给军队创造机会，他留下死守的命令，自己以烈火焚躯的方式与敌人同归于尽，最终下落不明。
-                因那道导致夜归死伤惨重的军令，在瑝珑的历史上被视为罪人。（以上内容均为各处整合现关于哥舒临的谜团还很多）
+                夜归前任将军。仇远曾违抗追杀令将其放走。后于“弯刀之役”与无相燹主同归于尽，下落不明。因那道惨烈军令，在瑝珑被视为罪人。
               </p>
             </div>
           </li>
@@ -215,7 +350,7 @@
         aria-labelledby="timeline-heading"
       >
         <div class="card-head">
-          <h2 id="timeline-heading">共鸣链详解</h2>
+          <h2 id="timeline-heading">🔗 共鸣链详解</h2>
         </div>
         <div class="tl-wrap" role="list">
           <div class="vl" aria-hidden="true"></div>
@@ -226,7 +361,6 @@
               class="tl-item"
               role="listitem"
               tabindex="0"
-              :aria-label="``"
             >
               <div class="tl-card">
                 <h3 class="tl-title">第 {{ i + 1 }} 链 · {{ ev.title }}</h3>
@@ -238,20 +372,21 @@
       </section>
 
       <section class="ll-stories" ref="storyRef">
-        <div class="card" role="region" aria-labelledby="stories-title">
+        <div
+          class="card stories-card"
+          role="region"
+          aria-labelledby="stories-title"
+        >
+          <!-- 标题区 -->
           <header class="card-head">
             <h2 id="stories-title" class="card-title">仇远纪事</h2>
+            <span class="title-underline"></span>
           </header>
 
+          <!-- 故事正文区 -->
           <main class="card-body">
-            <transition name="fade-slide" mode="out-in">
-              <article
-                :key="items[current].id"
-                :id="`panel-${items[current].id}`"
-                class="story"
-                role="tabpanel"
-                :aria-labelledby="`tab-${items[current].id}`"
-              >
+            <transition name="story-fade" mode="out-in">
+              <article :key="items[current].id" class="story" role="tabpanel">
                 <h3 class="story-head">{{ items[current].title }}</h3>
                 <div
                   class="story-content"
@@ -261,18 +396,37 @@
             </transition>
           </main>
 
+          <!-- 翻页控制区 -->
           <footer class="card-foot">
-            <button class="nav-btn" @click="prev" aria-label="上一则故事">
-              ‹
+            <button
+              class="nav-btn prev-btn"
+              @click="prev"
+              aria-label="上一则故事"
+            >
+              <span class="btn-arrow">‹</span>
             </button>
-            <div class="pager">{{ current + 1 }} / {{ items.length }}</div>
-            <button class="nav-btn" @click="next" aria-label="下一则故事">
-              ›
+            <div class="pager">
+              <span class="pager-current">{{ current + 1 }}</span>
+              <span class="pager-sep">/</span>
+              <span class="pager-total">{{ items.length }}</span>
+            </div>
+            <button
+              class="nav-btn next-btn"
+              @click="next"
+              aria-label="下一则故事"
+            >
+              <span class="btn-arrow">›</span>
             </button>
           </footer>
+
+          <!-- 背景装饰光点 -->
+          <div class="bg-ambient ambient-1"></div>
+          <div class="bg-ambient ambient-2"></div>
         </div>
       </section>
     </main>
+
+    <!-- 浮动小人（保留原逻辑） -->
     <div class="floating-chibis">
       <img
         v-for="(pet, i) in chibiList"
@@ -280,6 +434,7 @@
         :src="pet.src"
         :style="{ top: pet.top + 'px', left: pet.left + 'px' }"
         class="chibi-img"
+        alt=""
       />
     </div>
   </div>
@@ -291,10 +446,11 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
+// 共鸣链数据
 const timeline = ref([
   {
     title: "如剑不动，相由心生",
-    desc: ` 答剑·弦歌不辍、答剑·割股之心、答剑·忠烈死节免疫打断。
+    desc: `答剑·弦歌不辍、答剑·割股之心、答剑·忠烈死节免疫打断。
 仇远暴击提升20%。`,
   },
   {
@@ -325,10 +481,7 @@ const timeline = ref([
   },
 ]);
 
-const reducedMotion =
-  window.matchMedia &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
+// 故事数据
 const items = [
   {
     id: "1",
@@ -426,7 +579,6 @@ const items = [
 
 “仇远，去把门开了吧，炉子也点上。有一点我比你好些，还没有人敢来我这里惹是生非。”`,
   },
-
   {
     id: "3",
     title: "用剑",
@@ -494,7 +646,6 @@ const items = [
 
 “仇远，谢过先生之恩。”`,
   },
-
   {
     id: "4",
     title: "折剑",
@@ -562,7 +713,6 @@ const items = [
 
 “往后的路，你只能自己走了。你要记住，这场案子，你就是舍了性命也要查明白，死也要死在给东园报仇的路上。”`,
   },
-
   {
     id: "5",
     title: "铸剑",
@@ -637,28 +787,21 @@ const items = [
 也许等他再老些就知道了吧。`,
   },
 ];
-const current = ref(0);
 
-function select(index) {
-  current.value = index;
-  // 将焦点移回当前 tab（便于无障碍与键盘导航）
-  const id = `tab-${items[index].id}`;
-  const el = document.getElementById(id);
-  if (el) el.focus();
-}
+const current = ref(0);
 const storyRef = ref<HTMLElement | null>(null);
 
 function prev() {
   current.value = (current.value - 1 + items.length) % items.length;
-  select(current.value);
-  storyRef.value.scrollIntoView({ behavior: "smooth", block: "start" });
+  storyRef.value?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function next() {
   current.value = (current.value + 1) % items.length;
-  select(current.value);
-  storyRef.value.scrollIntoView({ behavior: "smooth", block: "start" });
+  storyRef.value?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
+// 浮动小人
 interface Chibi {
   src: string;
   top: number;
@@ -666,20 +809,13 @@ interface Chibi {
 }
 
 const chibiList = ref<Chibi[]>([]);
+const reducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+).matches;
+
 onMounted(async () => {
   if (!reducedMotion) {
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    tl.from(".avatar-card", {
-      duration: 0.8,
-      y: 18,
-      opacity: 0,
-      scale: 0.99,
-    }).from(
-      ".right-col > .hero-panel .name",
-      { duration: 0.9, x: 24, opacity: 0 },
-      "-=0.45"
-    );
-
+    // 时间线滚动触发
     gsap.utils.toArray(".tl-item").forEach((it: any, idx: number) => {
       gsap.from(it.querySelector(".tl-card"), {
         scrollTrigger: {
@@ -694,6 +830,7 @@ onMounted(async () => {
       });
     });
 
+    // 头像微呼吸
     gsap.to(".avatar-card", {
       scale: 1.007,
       duration: 2.8,
@@ -701,462 +838,1039 @@ onMounted(async () => {
       repeat: -1,
       ease: "sine.inOut",
     });
-  } else {
-    document.documentElement.classList.add("reduced-motion");
   }
 
-  // 1. 基础配置信息
+  // 生成浮动小人
   const total = 6;
-  let pickCount = 3; // 每次抽取 3 张
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const isMobile = window.innerWidth <= 768;
-  // 如果已知单张小人图片的宽高，可避免超出边界；
-  // 假设小人图片宽 100px、高 100px，按需替换：
-  const imgWidth = 100;
-  const imgHeight = 100;
-
-  // 2. Fisher–Yates 洗牌函数
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  // 3. 随机选出 3 个编号
-  if (isMobile) {
-    pickCount = 1;
-  }
+  const pickCount = window.innerWidth <= 768 ? 1 : 3;
   const nums = shuffle(Array.from({ length: total }, (_, k) => k + 1));
   const picks = nums.slice(0, pickCount);
+  const imgWidth = 100;
+  const imgHeight = 100;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
 
-  // 4. 生成随机位置并填充 chibiList
-  chibiList.value = []; // 先清空
-  picks.forEach((i) => {
-    chibiList.value.push({
-      src: `/QImages/1 (${i}).png`,
-      left: Math.random() * (vw - imgWidth), // 保证不超出左右边界
-      top: Math.random() * (vh - imgHeight), // 保证不超出上下边界
-    });
-  });
+  chibiList.value = picks.map((i) => ({
+    src: `/QImages/1 (${i}).png`,
+    left: Math.random() * (vw - imgWidth),
+    top: Math.random() * (vh - imgHeight),
+  }));
 
-  // 2. 等 img 渲染到 DOM
   await nextTick();
-
-  // 3. 给每个小人绑定 GSAP 动画
   const imgs = document.querySelectorAll<HTMLImageElement>(".chibi-img");
   imgs.forEach((img, index) => {
-    const padding = 200; // 边缘预留空间
-    // ✅ 初始出场动画（闪现）
-    gsap.fromTo(
-      img,
-      { opacity: 0, scale: 0.5 },
-      {
-        opacity: 1,
-        scale: 1,
-        duration: 0.8,
-        ease: "back.out(2)",
-        delay: 0.2 * index,
-      }
-    );
-
-    // ✅ 鼠标靠近闪避
-    img.addEventListener("mouseenter", () => {
-      gsap.killTweensOf(img);
-
-      gsap.to(img, {
-        x: "+=" + ((Math.random() - 0.5) * 400).toFixed(0),
-        y: "+=" + ((Math.random() - 0.5) * 400).toFixed(0),
-        duration: 1.2,
-        ease: "back.out(2)",
-        onComplete: () => {
-          // 闪避完成后，再重新启用动画
-          animate(img);
-        },
+    if (!reducedMotion) {
+      gsap.fromTo(
+        img,
+        { opacity: 0, scale: 0.5 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: "back.out(2)",
+          delay: 0.2 * index,
+        }
+      );
+      img.addEventListener("mouseenter", () => {
+        gsap.killTweensOf(img);
+        gsap.to(img, {
+          x: `+=${((Math.random() - 0.5) * 400).toFixed(0)}`,
+          y: `+=${((Math.random() - 0.5) * 400).toFixed(0)}`,
+          duration: 1.2,
+          ease: "back.out(2)",
+          onComplete: () => animateChibi(img),
+        });
       });
-    });
-
-    const animate = (img: HTMLImageElement) => {
-      let { x, y } = img.getBoundingClientRect();
-      let deltaX = (Math.random() - 0.5) * 200;
-      let deltaY = (Math.random() - 0.5) * 200;
-
-      // 预测一下偏移后的位置
-      let nextX = x + deltaX;
-      let nextY = y + deltaY;
-
-      // 校正：防漂出左、右、上、下边界
-      if (nextX < padding) deltaX = padding - x;
-      if (nextX + img.width > window.innerWidth - padding)
-        deltaX = window.innerWidth - padding - (x + img.width);
-      if (nextY < padding) deltaY = padding - y;
-      if (nextY + img.height > window.innerHeight - padding)
-        deltaY = window.innerHeight - padding - (y + img.height);
-
-      gsap.to(img, {
-        x: `+=${deltaX.toFixed(0)}`,
-        y: `+=${deltaY.toFixed(0)}`,
-        rotation: `+=${((Math.random() - 0.5) * 60).toFixed(0)}`,
-        duration: 2 + Math.random() * 2,
-        ease: "power1.inOut",
-        onComplete: () => animate(img),
-      });
-    };
-    animate(img);
+      animateChibi(img);
+    }
   });
 });
+
+function animateChibi(img: HTMLImageElement) {
+  const padding = 200;
+  const rect = img.getBoundingClientRect();
+  let deltaX = (Math.random() - 0.5) * 200;
+  let deltaY = (Math.random() - 0.5) * 200;
+  let nextX = rect.x + deltaX;
+  let nextY = rect.y + deltaY;
+  if (nextX < padding) deltaX = padding - rect.x;
+  if (nextX + img.width > window.innerWidth - padding)
+    deltaX = window.innerWidth - padding - (rect.x + img.width);
+  if (nextY < padding) deltaY = padding - rect.y;
+  if (nextY + img.height > window.innerHeight - padding)
+    deltaY = window.innerHeight - padding - (rect.y + img.height);
+
+  gsap.to(img, {
+    x: `+=${deltaX.toFixed(0)}`,
+    y: `+=${deltaY.toFixed(0)}`,
+    rotation: `+=${((Math.random() - 0.5) * 60).toFixed(0)}`,
+    duration: 2 + Math.random() * 2,
+    ease: "power1.inOut",
+    onComplete: () => animateChibi(img),
+  });
+}
+
+function shuffle(array: number[]) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 </script>
 
 <style scoped lang="scss">
-/* 仇远风格 —— 紫蓝海感（水母/幻海） + 毒药/治愈双重高光 */
-$bg-deep: #060e12; // 深海夜色底
-$deep-2: #0a1416; // 次深底用于渐变
-$accent-1: #2e8f74; // 暗紫主光（冷雅）
-$accent-2: #cfeee8; // 冷海蓝高光（湿光感）
-
-$text-main: #e8f6f4;
-$card-bg: rgba(6, 8, 12, 0.46);
-$card-border: rgba(184, 107, 224, 0.06);
-$soft-shadow: rgba(0, 0, 0, 0.6);
-$inner-glow: rgba(184, 107, 224, 0.03);
-/* 固定浮动小 chibi 层（保留） */
-.floating-chibis {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  .chibi-img {
-    position: absolute;
-    width: 80px;
-    user-select: none;
-    transform-origin: center center;
-    pointer-events: auto;
-    z-index: 10;
-  }
+/* ========== 全局色彩变量 ========== */
+:root {
+  --bamboo-green: #2e8f74;
+  --blade-silver: #cfeee8;
+  --moon-light: #b4e6e2;
+  --deep-ink: #0b1a16;
+  --night-base: #050a0c;
+  --text-primary: #f0faf8;
+  --text-secondary: rgba(207, 238, 232, 0.7);
+  --card-border: rgba(46, 143, 116, 0.15);
+  --card-bg: rgba(5, 10, 12, 0.55);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --font-special: "ZCOOL KuaiLe", "STKaiti", serif;
 }
 
+/* ========== 页面基础 ========== */
 .megumi-page {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(180deg, $bg-deep 0%, $deep-2 72%);
-  font-family: "Noto Sans SC", system-ui, -apple-system, "Segoe UI", Roboto,
-    Arial;
-  color: $text-main;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  padding: clamp(20px, 4vw, 80px);
+  background: radial-gradient(ellipse at 30% 20%, #0a1410 0%, #030606 100%);
+  font-family: "Noto Serif SC", "STKaiti", "KaiTi", serif;
+  color: var(--text-primary);
+  padding: 60px 20px 40px;
   box-sizing: border-box;
-  padding-top: 60px;
+  overflow-x: hidden;
 
   &.reduced-motion * {
     transition: none !important;
     animation: none !important;
   }
-
-  .container {
-    position: relative;
-    z-index: 10;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: clamp(12px, 2vw, 40px);
-  }
 }
 
-/* ========== HERO 区域（整体暗化 + 血玫点光） ========== */
-.hero {
-  position: relative;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 28px;
-  align-items: start;
-  padding: 12px;
-  margin-bottom: 12px;
+/* ========== 动态氛围背景 ========== */
+.bg-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
 
-  /* 乐谱画布 —— 在 hero 背后增加五线谱移动感 */
-  &::before {
+  &::after {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: 0;
+    background: radial-gradient(
+        circle at 40% 30%,
+        rgba(46, 143, 116, 0.02) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 70%,
+        rgba(207, 238, 232, 0.03) 0%,
+        transparent 50%
+      );
     pointer-events: none;
-    background-image: repeating-linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.02) 0px,
-      rgba(255, 255, 255, 0.02) 1px,
-      transparent 1px,
-      transparent 16px
+  }
+
+  .moon-main {
+    position: absolute;
+    top: 5%;
+    right: 10%;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(
+      circle at 45% 40%,
+      rgba(180, 230, 226, 0.18) 0%,
+      transparent 70%
     );
-    opacity: 0.06;
-    mix-blend-mode: overlay;
-    transform: translateY(-4%);
-    animation: staff-drift 16s linear infinite;
+    filter: blur(65px);
+    animation: moonBreathe 8s ease-in-out infinite alternate;
+  }
+  .moon-sub {
+    position: absolute;
+    bottom: 12%;
+    left: 8%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(
+      circle at 60% 60%,
+      rgba(46, 143, 116, 0.12) 0%,
+      transparent 70%
+    );
+    filter: blur(55px);
+    animation: moonBreathe 10s ease-in-out infinite alternate-reverse;
   }
 
-  .left-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 6;
+  .firefly {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: radial-gradient(circle, #f0faf8 0%, transparent 85%);
+    border-radius: 50%;
+    box-shadow: 0 0 18px #cfeee8, 0 0 40px rgba(180, 230, 226, 0.55),
+      0 0 60px rgba(46, 143, 116, 0.25);
+    animation: fireflyFloat ease-in-out infinite;
+    &::after {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      width: 10px;
+      height: 10px;
+      background: radial-gradient(
+        circle,
+        rgba(207, 238, 232, 0.5) 0%,
+        transparent 70%
+      );
+      border-radius: 50%;
+      filter: blur(2px);
+    }
+  }
+  .firefly-1 {
+    top: 18%;
+    left: 8%;
+    animation-duration: 9s;
+  }
+  .firefly-2 {
+    top: 38%;
+    left: 28%;
+    animation-duration: 13s;
+    animation-delay: 2s;
+  }
+  .firefly-3 {
+    top: 58%;
+    left: 68%;
+    animation-duration: 10s;
+    animation-delay: 4s;
+  }
+  .firefly-4 {
+    top: 28%;
+    left: 78%;
+    animation-duration: 12s;
+    animation-delay: 6s;
+  }
+  .firefly-5 {
+    top: 72%;
+    left: 18%;
+    animation-duration: 11s;
+    animation-delay: 1s;
+  }
+  .firefly-6 {
+    top: 85%;
+    left: 55%;
+    animation-duration: 14s;
+    animation-delay: 7s;
   }
 
-  .avatar-card {
+  .sword-light {
+    position: absolute;
+    left: -15%;
+    width: 320%;
+    height: 1px;
     background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.01),
-      rgba(184, 107, 224, 0.01)
+      90deg,
+      transparent 0%,
+      rgba(46, 143, 116, 0.25) 20%,
+      rgba(207, 238, 232, 0.7) 45%,
+      rgba(180, 230, 226, 0.9) 50%,
+      rgba(207, 238, 232, 0.7) 55%,
+      rgba(46, 143, 116, 0.25) 80%,
+      transparent 100%
     );
-    border-radius: 16px;
-    padding: 12px;
-    display: grid;
-    justify-items: center;
-    gap: 8px;
-    border: 1px solid $card-border;
-    box-shadow: 0 14px 44px $soft-shadow, inset 0 1px 0 $inner-glow;
-    cursor: pointer;
-    transition: transform 0.28s ease, box-shadow 0.28s ease;
+    filter: blur(1px) drop-shadow(0 0 6px rgba(46, 143, 116, 0.5));
+    animation: swordSweep linear infinite;
+    mix-blend-mode: screen;
+  }
+  .sword-light-1 {
+    bottom: 22%;
+    animation-duration: 9s;
+    transform: rotate(-12deg);
+  }
+  .sword-light-2 {
+    bottom: 38%;
+    animation-duration: 13s;
+    animation-delay: -4s;
+    transform: rotate(15deg) scaleX(1.1);
+  }
+  .sword-light-3 {
+    bottom: 55%;
+    animation-duration: 7s;
+    animation-delay: -2s;
+    transform: rotate(-25deg) scaleY(0.7);
+    height: 0.8px;
+    opacity: 0.6;
+  }
+
+  .ink-drop {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(46, 143, 116, 0.85);
+    border-radius: 50%;
+    box-shadow: 0 0 12px #2e8f74, 0 0 30px rgba(46, 143, 116, 0.4);
+    animation: inkDrop 8s linear infinite;
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      margin: -20px;
+      border: 1px solid rgba(46, 143, 116, 0.25);
+      border-radius: 50%;
+      animation: ripple 2.5s ease-out infinite;
+    }
+  }
+  .ink-drop-1 {
+    top: 25%;
+    left: 15%;
+    animation-delay: 0s;
+  }
+  .ink-drop-2 {
+    top: 45%;
+    left: 75%;
+    animation-delay: 4s;
+  }
+
+  .hat-silhouette {
+    position: absolute;
+    top: 15%;
+    right: 8%;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(
+      ellipse at 50% 45%,
+      transparent 35%,
+      rgba(207, 238, 232, 0.05) 36%,
+      rgba(207, 238, 232, 0.12) 70%,
+      transparent 71%
+    );
+    border-radius: 50%;
+    filter: blur(7px);
+    animation: hatFloat 10s ease-in-out infinite;
+  }
+
+  .rain {
+    position: absolute;
+    top: -10%;
+    left: 0;
     width: 100%;
+    height: 120%;
+    background: repeating-linear-gradient(
+      transparent 0px,
+      transparent 3px,
+      rgba(180, 230, 226, 0.05) 3px,
+      rgba(180, 230, 226, 0.05) 4px
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 10%,
+      black 40%,
+      black 60%,
+      transparent 90%
+    );
+    animation: rainFall 0.6s linear infinite;
   }
 
-  .avatar-wrap {
+  .mist {
+    position: absolute;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    display: block;
-  }
-
-  .avatar {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    display: block;
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5), 0 0 18px rgba($accent-1, 0.03);
-    transition: transform 0.5s ease, filter 0.5s ease;
-    background-color: rgba(0, 0, 0, 0.04);
-    filter: saturate(0.8) contrast(0.95) brightness(0.92);
-  }
-
-  .avatar-card:hover .avatar {
-    transform: translateY(-4px) scale(1.02);
-    filter: saturate(0.7) contrast(0.9) brightness(0.9);
-  }
-
-  .avatar-meta {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .avatar-badge {
-    font-size: 0.9rem;
-    color: $text-main;
-    background: rgba(0, 0, 0, 0.18);
-    padding: 6px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba($accent-2, 0.05);
-    font-weight: 600;
-  }
-
-  .right-col {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    z-index: 6;
-  }
-
-  .hero-panel {
-    position: relative;
-    z-index: 6;
-    padding: 20px;
-    border-radius: 14px;
-    background: $card-bg;
-    backdrop-filter: blur(8px) saturate(0.9);
-    border: 1px solid $card-border;
-    box-shadow: 0 12px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 $inner-glow;
-  }
-
-  .name {
-    font-size: clamp(1.8rem, 3vw, 2.8rem);
-    margin: 0;
-    font-weight: 900;
-    letter-spacing: 1px;
-    line-height: 1;
-    display: inline-block;
-    /* 标题改为 暗紫 → 血玫 渐变 */
-    background: linear-gradient(90deg, $accent-1 0%, $accent-2 70%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    -webkit-text-stroke: 0.2px rgba(0, 0, 0, 0.22);
-    text-shadow: 0 10px 36px rgba(0, 0, 0, 0.65);
-    position: relative;
-  }
-
-  .jp {
-    font-size: 0.95rem;
-    color: $accent-1;
-    margin-left: 8px;
-    font-weight: 400;
-  }
-
-  .subtitle {
-    margin: 6px 0 0;
-    font-size: 1.1rem;
-    color: $accent-1;
-    font-weight: 600;
-    line-height: 1.4;
-  }
-
-  .lead {
-    margin: 10px 0 0;
-    color: $text-main;
-    opacity: 0.96;
-    line-height: 1.7;
-    max-width: 72ch;
+    height: 35%;
+    background: linear-gradient(
+        to top,
+        rgba(38, 120, 90, 0.1) 0%,
+        transparent 80%
+      ),
+      linear-gradient(
+        to right,
+        rgba(180, 230, 226, 0.06),
+        transparent 30%,
+        rgba(46, 143, 116, 0.06) 70%,
+        transparent
+      );
+    filter: blur(35px);
+    animation: mistRise 14s ease-in-out infinite;
   }
 }
 
-/* ========== 通用卡片（更暗、更锐利的边与血色提示） ========== */
-.card {
-  margin-top: 24px;
-  background: rgba(6, 6, 8, 0.5);
-  border-radius: 14px;
-  padding: 24px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
-  color: $text-main;
-  border: 1px solid $card-border;
-  transition: transform 0.28s ease, box-shadow 0.28s ease;
-
-  &:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7);
-  }
-
-  h2 {
-    margin: 0 0 12px 0;
-    font-size: 1.3rem;
-    color: $accent-2;
-  }
-
-  .card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-  }
+/* ========== 容器与Hero布局 ========== */
+.container {
+  position: relative;
+  z-index: 10;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 10px;
 }
 
-/* personality 列表样式（暗紫细线） */
-.personality .traits li {
-  padding: 12px 0;
-  border-bottom: 1px dashed rgba($accent-1, 0.06);
-  font-size: 1rem;
-  color: rgba($text-main, 0.92);
+.hero {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 2;
 }
 
-/* overview 双栏布局（保持） */
-.overview .two-col {
+.left-col {
   display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-top: 12px;
+  justify-content: center;
 }
 
-.overview .text-block {
-  flex: 1 1 40%;
-  min-width: 240px;
+.avatar-card {
+  background: rgba(6, 16, 18, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 12px;
+  border: 1px solid rgba(207, 238, 232, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s ease;
+}
+
+.avatar-wrap img {
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+  filter: saturate(0.8) brightness(0.9);
+}
+
+.avatar-meta {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.avatar-badge {
+  font-size: 0.9rem;
+  color: var(--blade-silver);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(207, 238, 232, 0.2);
+}
+
+.right-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-panel {
+  background: rgba(5, 10, 12, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(207, 238, 232, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.name {
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(
+    135deg,
+    #fff,
+    var(--blade-silver),
+    var(--bamboo-green)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+  .jp {
+    font-size: 0.9rem;
+    color: var(--bamboo-green);
+    margin-left: 10px;
+    -webkit-text-fill-color: var(--bamboo-green);
+  }
+}
+
+.subtitle {
+  color: var(--moon-light);
+  font-size: 1.1rem;
+  margin: 12px 0;
+  font-style: italic;
+}
+
+.lead {
+  color: rgba(240, 250, 248, 0.8);
   line-height: 1.6;
-  color: rgba($text-main, 0.96);
 }
 
-/* special-section：加入音符漂浮和暗紫边框 */
-.special-section {
+/* ========== 通用卡片基础 ========== */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 
-  .content {
-    display: flex;
-    gap: 24px;
-    align-items: center;
-    margin-top: 16px;
+  &:hover {
+    border-color: rgba(46, 143, 116, 0.3);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7),
+      0 0 0 1px rgba(46, 143, 116, 0.2) inset;
+    transform: translateY(-4px);
   }
 
-  .img-area {
-    flex: 0 0 200px;
-
-    img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 14px 44px rgba(0, 0, 0, 0.6), 0 0 12px rgba($accent-1, 0.02);
-      border: 1px solid rgba($accent-1, 0.03);
-    }
+  // 顶部公共装饰光带
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 10%;
+    width: 80%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--blade-silver),
+      transparent
+    );
+    opacity: 0.2;
+    animation: shimmerLine 4s ease-in-out infinite;
+    pointer-events: none;
   }
 
-  .text-block {
-    flex: 1;
-    line-height: 1.6;
-    color: rgba($text-main, 0.95);
+  h2 {
+    color: var(--blade-silver);
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-shadow: 0 0 15px rgba(46, 143, 116, 0.3);
+    margin: 0 0 16px;
+    white-space: nowrap;
   }
 }
 
-/* ll-stories — 暗底 + 微血色分割线 */
-.ll-stories {
-  .card {
-    width: min(1200px, 100%);
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6),
-      inset 0 1px 0 rgba($accent-1, 0.02);
-    color: $text-main;
-    overflow: hidden;
+// 去除故事卡片默认的伪元素（故事卡片内部会自己定义）
+.stories-card::before {
+  content: none;
+}
+
+/* 通用card-head（用于除故事卡片外的其他卡片） */
+.card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 2;
+
+  .head-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--bamboo-green), transparent);
+    opacity: 0.3;
+    margin-left: 8px;
+    box-shadow: 0 0 6px rgba(46, 143, 116, 0.2);
+  }
+}
+
+/* ========== 共鸣状况卡片 ========== */
+.resonance-overview {
+  // 背景微光点（卡片内装饰）
+  .bg-spark {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.15;
+  }
+  .spark-1 {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(
+      circle,
+      rgba(46, 143, 116, 0.4) 0%,
+      transparent 70%
+    );
+    top: -40px;
+    right: -40px;
+    animation: floatSlow 8s ease-in-out infinite;
+  }
+  .spark-2 {
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(
+      circle,
+      rgba(207, 238, 232, 0.3) 0%,
+      transparent 70%
+    );
+    bottom: -30px;
+    left: -30px;
+    animation: floatSlow 10s ease-in-out infinite alternate;
+  }
+}
+
+/* 报告块通用 */
+.report-section {
+  position: relative;
+  padding-left: 12px;
+  border-left: 2px solid rgba(46, 143, 116, 0.2);
+  transition: border-color 0.3s;
+  &:hover {
+    border-left-color: rgba(46, 143, 116, 0.5);
+  }
+
+  .report-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--blade-silver);
+    margin: 0 0 6px;
+    letter-spacing: 2px;
+    &::after {
+      content: "";
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: var(--bamboo-green);
+      margin-top: 6px;
+      border-radius: 1px;
+      box-shadow: 0 0 8px var(--bamboo-green);
+    }
+  }
+
+  .report-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 16px;
+    opacity: 0.7;
+    letter-spacing: 0.5px;
+  }
+
+  .report-content {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    margin: 0 0 12px;
+    text-align: justify;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .highlight {
+    color: var(--blade-silver);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .emphasis {
+    font-family: var(--font-special);
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--bamboo-green);
+    text-shadow: 0 0 8px rgba(46, 143, 116, 0.4);
+    font-size: 1.05em;
+    transition: text-shadow 0.3s;
+    &:hover {
+      text-shadow: 0 0 16px rgba(46, 143, 116, 0.8);
+    }
+  }
+
+  .diagnosis-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 16px;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(
-      180deg,
-      rgba(8, 10, 12, 0.12),
-      rgba(8, 6, 10, 0.06)
+    gap: 8px;
+    li {
+      position: relative;
+      padding-left: 20px;
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: transform 0.2s, color 0.2s;
+      &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.6em;
+        width: 8px;
+        height: 1px;
+        background: var(--bamboo-green);
+        box-shadow: 0 0 4px var(--bamboo-green);
+      }
+      &:hover {
+        transform: translateX(6px);
+        color: #fff;
+      }
+    }
+  }
+
+  .postscript {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(207, 238, 232, 0.15);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.7;
+    span {
+      color: var(--blade-silver);
+      font-weight: 600;
+      font-style: normal;
+    }
+  }
+}
+
+.divider-light {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--bamboo-green),
+    var(--blade-silver),
+    var(--bamboo-green),
+    transparent
+  );
+  margin: 12px 0 18px;
+  opacity: 0.3;
+  position: relative;
+  z-index: 2;
+}
+
+/* 双栏布局 */
+.two-col {
+  display: flex;
+  gap: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.text-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  p {
+    margin: 0;
+    font-size: 1rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ========== 特殊物品卡片（杯中物、铁中剑、竹中声、麻辣豆腐） ========== */
+.qiuyuan-item {
+  // 背景氛围光点
+  .card-ambient {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.08;
+    transition: opacity 0.5s;
+  }
+  .ambient-left {
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(
+      circle,
+      var(--bamboo-green) 0%,
+      transparent 70%
     );
+    top: -40px;
+    left: -40px;
+  }
+  .ambient-right {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(
+      circle,
+      var(--blade-silver) 0%,
+      transparent 70%
+    );
+    bottom: -50px;
+    right: -50px;
+  }
+  &:hover .card-ambient {
+    opacity: 0.15;
+  }
+
+  // 图片框
+  .img-area {
+    flex: 0 0 180px;
+    max-width: 180px;
+    .img-frame {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(207, 238, 232, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6),
+        0 0 0 3px rgba(46, 143, 116, 0.1);
+      transition: all 0.3s ease;
+      img {
+        width: 100%;
+        display: block;
+        filter: brightness(0.9) contrast(1.05) saturate(0.8);
+        transition: transform 0.5s ease, filter 0.5s ease;
+      }
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.06),
+          transparent
+        );
+        transform: skewX(-20deg);
+        transition: left 0.6s;
+      }
+    }
+    &:hover .img-frame {
+      border-color: rgba(46, 143, 116, 0.6);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7),
+        0 0 0 3px rgba(46, 143, 116, 0.2);
+      &::after {
+        left: 120%;
+      }
+      img {
+        transform: scale(1.03);
+        filter: brightness(0.95) contrast(1.1) saturate(1);
+      }
+    }
+  }
+}
+
+/* 特殊文本样式 */
+.sword-quote {
+  font-family: var(--font-special);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 2px;
+  color: var(--blade-silver);
+  text-shadow: 0 0 12px rgba(207, 238, 232, 0.4);
+  border-left: 3px solid var(--bamboo-green);
+  padding-left: 16px;
+  margin-top: 6px;
+  transition: border-color 0.3s, text-shadow 0.3s;
+  &:hover {
+    border-left-color: var(--blade-silver);
+    text-shadow: 0 0 20px rgba(207, 238, 232, 0.8);
+  }
+}
+
+.bamboo-essence {
+  font-family: var(--font-special);
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--moon-light);
+  background: linear-gradient(
+    135deg,
+    rgba(46, 143, 116, 0.1) 0%,
+    transparent 40%
+  );
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px dashed rgba(207, 238, 232, 0.2);
+  transition: background 0.3s, border-color 0.3s;
+  &:hover {
+    background: rgba(46, 143, 116, 0.15);
+    border-color: rgba(207, 238, 232, 0.4);
+  }
+}
+
+.tofu-wisdom {
+  font-family: var(--font-special);
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--blade-silver);
+  text-shadow: 0 0 10px rgba(46, 143, 116, 0.4);
+  text-align: right;
+  font-style: italic;
+}
+
+/* ========== 通缉令 ========== */
+.wanted-slim-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 20px;
+}
+.wanted-slim-item {
+  display: flex;
+  gap: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(207, 238, 232, 0.08);
+  transition: transform 0.2s;
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+.ws-thumb {
+  position: relative;
+  width: 180px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .seal {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #b91c1c;
+    color: #fff;
+    font-weight: bold;
+    padding: 4px 12px;
+    border-radius: 50%;
+    transform: rotate(-15deg);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  }
+  .staple {
+    position: absolute;
+    width: 20px;
+    height: 4px;
+    background: #aaa;
+    border-radius: 2px;
+  }
+  .staple-top {
+    top: -4px;
+    left: 20px;
+    transform: rotate(-10deg);
+  }
+  .staple-bottom {
+    bottom: -4px;
+    right: 20px;
+    transform: rotate(8deg);
+  }
+}
+.ws-name {
+  color: var(--blade-silver);
+  margin: 0 0 8px;
+}
+
+/* ========== 时间线 ========== */
+.timeline .tl-wrap {
+  position: relative;
+  padding: 10px 0 10px 80px;
+}
+.vl {
+  position: absolute;
+  left: 60px;
+  top: 20px;
+  bottom: 20px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--bamboo-green), transparent);
+}
+.tl-item {
+  margin-bottom: 24px;
+}
+.tl-card {
+  background: rgba(6, 16, 18, 0.4);
+  border-radius: 10px;
+  padding: 16px;
+  border-left: 4px solid var(--bamboo-green);
+}
+.tl-title {
+  color: var(--blade-silver);
+  margin: 0 0 8px;
+}
+
+/* ========== 故事卡片（仇远纪事） ========== */
+.stories-card {
+  // 重写基础卡片的顶部光带位置和样式
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 5%;
+    width: 90%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--blade-silver),
+      transparent
+    );
+    opacity: 0.2;
+    animation: shimmerLine 5s ease-in-out infinite;
+    pointer-events: none;
   }
 
   .card-head {
-    padding: 14px 16px;
-    border-bottom: 1px solid rgba($accent-2, 0.03);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
 
     .card-title {
-      font-size: 24px;
+      font-size: 2rem;
       font-weight: 700;
-      color: $accent-1;
-      letter-spacing: 0.6px;
+      letter-spacing: 5px;
+      background: linear-gradient(180deg, #ffffff, var(--blade-silver));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 16px rgba(46, 143, 116, 0.35);
+      margin: 0;
+    }
+    .title-underline {
+      display: block;
+      width: 50px;
+      height: 2px;
+      background: var(--bamboo-green);
+      margin-top: 10px;
+      border-radius: 1px;
+      box-shadow: 0 0 8px var(--bamboo-green);
+      transition: width 0.4s ease;
+    }
+    &:hover .title-underline {
+      width: 100px;
     }
   }
 
   .card-body {
-    padding: 18px 16px;
-    min-height: 160px;
     position: relative;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(8, 8, 10, 0.02));
+    z-index: 2;
+    min-height: 180px;
   }
 
   .story {
-    color: rgba($text-main, 0.96);
-
     .story-head {
-      font-size: 18px;
-      color: $accent-2;
+      font-size: 1.5rem;
       font-weight: 700;
-      margin-bottom: 8px;
+      color: var(--blade-silver);
+      margin: 0 0 16px;
+      letter-spacing: 2px;
+      padding-left: 14px;
+      border-left: 3px solid var(--bamboo-green);
+      transition: border-color 0.3s;
+      &:hover {
+        border-left-color: var(--blade-silver);
+      }
     }
-
     .story-content {
-      line-height: 1.7;
-      color: rgba($text-main, 0.92);
+      font-size: 1.05rem;
+      line-height: 1.9;
+      color: var(--text-primary);
+      text-align: justify;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
       white-space: pre-wrap;
+      word-break: break-word;
     }
   }
 
@@ -1164,490 +1878,306 @@ $inner-glow: rgba(184, 107, 224, 0.03);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    padding: 10px 14px;
-    border-top: 1px solid rgba($accent-1, 0.02);
-    background: linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.02),
-      rgba(0, 0, 0, 0.04)
-    );
-
-    .nav-btn {
-      background: transparent;
-      border: 1px solid rgba($accent-1, 0.06);
-      color: $accent-2;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 180ms ease;
-      &:hover {
-        background: rgba($accent-2, 0.04);
-      }
-    }
-
-    .pager {
-      color: rgba($text-main, 0.72);
-      font-size: 13px;
-      font-weight: 600;
-    }
-  }
-
-  /* 切换动画保留，但更暗 */
-  .fade-slide-enter-active,
-  .fade-slide-leave-active {
-    transition: all 320ms cubic-bezier(0.2, 0.9, 0.2, 1);
-  }
-
-  .fade-slide-enter-from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-
-  .fade-slide-enter-to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .fade-slide-leave-from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .fade-slide-leave-to {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-}
-.wanted-slim-board {
-  margin-top: 20px;
-  padding: 12px;
-  border-radius: 12px;
-  background: linear-gradient(
-    180deg,
-    rgba(8, 10, 12, 0.48),
-    rgba(6, 6, 8, 0.36)
-  );
-  border: 1px solid rgba(255, 255, 255, 0.02);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
-  color: $text-main;
-
-  .card-head {
-    margin-bottom: 8px;
-  }
-
-  .wanted-slim-list {
-    list-style: none;
-    margin: 0;
-    padding: 6px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .wanted-slim-item {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    padding: 12px;
-    border-radius: 10px;
-    background: linear-gradient(
-      180deg,
-      rgba(6, 8, 10, 0.02),
-      rgba(6, 6, 8, 0.01)
-    );
-    border: 1px solid rgba(255, 255, 255, 0.01);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-    position: relative;
-    overflow: visible;
-
-    &:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.62), inset 0 0 22px;
-    }
-
-    /* 左侧缩略图区（带通缉装饰） */
-    .ws-thumb {
-      flex: 0 0 220px;
-      width: 220px;
-      height: 300px;
-      margin: 0;
-      position: relative;
-      border-radius: 8px;
-      overflow: hidden;
-      background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.02),
-        rgba(0, 0, 0, 0.06)
-      );
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.02);
-
-      img {
-        display: block;
-        width: 220px;
-        height: 300px;
-        object-fit: cover;
-        transition: transform 0.32s ease, filter 0.32s ease;
-        filter: saturate(0.9) contrast(0.95);
-      }
-      &:hover img {
-        transform: scale(1.03);
-      }
-
-      /* 纸张边缘：轻微旧纸 + 撕裂感（纯 CSS） */
-      &::before {
-        content: "";
-        position: absolute;
-        inset: 6px;
-        border-radius: 6px;
-        pointer-events: none;
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.06));
-        box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.45);
-        mix-blend-mode: multiply;
-      }
-
-      /* 右下角燃烧/污渍效果（装饰） */
-      &::after {
-        content: "";
-        position: absolute;
-        right: -22px;
-        bottom: -22px;
-        width: 120px;
-        height: 120px;
-        pointer-events: none;
-        background: radial-gradient(
-          circle at 30% 30%,
-          rgba(40, 20, 10, 0.08),
-          transparent 35%
-        );
-        transform: rotate(-18deg);
-        opacity: 0.9;
-      }
-
-      /* 红色印章（“通缉”） */
-      .seal {
-        position: absolute;
-        left: 10px;
-        top: 12px;
-        z-index: 6;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 86px;
-        height: 86px;
-        border-radius: 50%;
-        background: linear-gradient(
-          180deg,
-          rgba(200, 20, 20, 0.98),
-          rgba(160, 12, 12, 0.95)
-        );
-        color: #fff;
-        font-weight: 900;
-        font-size: 18px;
-        transform: rotate(-18deg);
-        box-shadow: 0 8px 18px rgba(160, 10, 10, 0.28);
-        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
-        border: 2px solid rgba(255, 255, 255, 0.06);
-        letter-spacing: 1px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-        pointer-events: none;
-        opacity: 0.95;
-      }
-
-      /* 订书钉 / 钉痕（用小矩形模拟） */
-      .staple {
-        position: absolute;
-        width: 22px;
-        height: 6px;
-        background: linear-gradient(
-          90deg,
-          rgba(200, 200, 200, 0.98),
-          rgba(140, 140, 140, 0.9)
-        );
-        border-radius: 2px;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
-        transform: rotate(-18deg);
-        z-index: 7;
-      }
-      .staple-top {
-        left: 18px;
-        top: -8px;
-        transform: rotate(-8deg);
-      }
-      .staple-bottom {
-        right: 18px;
-        bottom: -8px;
-        transform: rotate(6deg);
-      }
-    } /* .ws-thumb end */
-
-    /* 右侧描述区 */
-    .ws-info {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-
-      .ws-name {
-        margin: 0;
-        font-size: 1.15rem;
-        color: $accent-2;
-        font-weight: 700;
-      }
-
-      .ws-brief {
-        margin: 0;
-        color: rgba($text-main, 0.92);
-        line-height: 1.5;
-        font-size: 0.98rem;
-      }
-    } /* .ws-info end */
-  }
-} /* .wanted-slim-item end */
-
-/* timeline（暗紫竖线 + 微光） */
-.timeline {
-  position: relative;
-
-  .tl-wrap {
-    position: relative;
-    padding: 24px 12px 12px 96px;
-  }
-
-  .vl {
-    position: absolute;
-    left: 80px;
-    top: 32px;
-    bottom: 20px;
-    width: 4px;
-    border-radius: 6px;
-    background: linear-gradient(
-      180deg,
-      rgba($accent-2, 0.12),
-      rgba($accent-1, 0.1)
-    );
-    box-shadow: 0 6px 18px rgba($accent-1, 0.06),
-      inset 0 0 10px rgba($accent-1, 0.02);
-    opacity: 0.95;
-  }
-
-  .tl-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .tl-item {
-    position: relative;
-    display: flex;
-    gap: 18px;
-    align-items: flex-start;
-    margin: 20px 0;
-    transition: transform 0.28s ease, box-shadow 0.28s ease;
-  }
-
-  .tl-card {
-    background: rgba(8, 6, 10, 0.36);
-    border-radius: 12px;
-    padding: 16px 20px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
-    width: calc(100% - 130px);
-    border-left: 4px solid transparent;
-    transition: transform 0.28s ease, box-shadow 0.28s ease,
-      border-color 0.28s ease;
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px dashed rgba(207, 238, 232, 0.15);
     position: relative;
     z-index: 2;
   }
 
-  .tl-item:hover .tl-card,
-  .tl-item:focus-within .tl-card {
-    transform: translateY(-8px);
-    box-shadow: 0 24px 72px rgba(0, 0, 0, 0.6);
-    border-left-color: rgba($accent-2, 0.18);
+  .nav-btn {
+    background: transparent;
+    border: 1px solid rgba(207, 238, 232, 0.25);
+    color: var(--blade-silver);
+    font-size: 2rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    .btn-arrow {
+      position: relative;
+      z-index: 2;
+      transition: transform 0.3s;
+    }
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        circle at center,
+        rgba(46, 143, 116, 0.3),
+        transparent
+      );
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    &:hover {
+      border-color: var(--bamboo-green);
+      color: #fff;
+      box-shadow: 0 0 15px rgba(46, 143, 116, 0.4);
+      &::after {
+        opacity: 1;
+      }
+    }
+    &:active {
+      transform: scale(0.95);
+    }
   }
 
-  .tl-title {
-    margin: 0 0 6px 0;
+  .pager {
+    color: var(--moon-light);
     font-size: 1.1rem;
-    color: $accent-1;
+    letter-spacing: 2px;
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    gap: 4px;
+    .pager-current {
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: var(--blade-silver);
+      text-shadow: 0 0 8px rgba(46, 143, 116, 0.5);
+    }
+    .pager-sep {
+      opacity: 0.5;
+    }
+    .pager-total {
+      opacity: 0.7;
+    }
   }
 
-  .tl-desc {
-    margin: 0;
-    color: rgba($text-main, 0.92);
-    white-space: pre-wrap;
+  // 背景光点
+  .bg-ambient {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(60px);
+    opacity: 0.08;
+    transition: opacity 0.5s;
+  }
+  .ambient-1 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, var(--bamboo-green), transparent 70%);
+    top: -40px;
+    right: -30px;
+  }
+  .ambient-2 {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, var(--blade-silver), transparent 70%);
+    bottom: -40px;
+    left: -30px;
+  }
+  &:hover .bg-ambient {
+    opacity: 0.15;
   }
 }
 
-/* 浮动音符（可在模板中渲染若干 .floating-note） */
-.floating-note {
-  position: absolute;
-  font-size: 14px;
-  color: $accent-2;
-  opacity: 0.95;
-  transform-origin: center;
-  animation: note-float 4.6s ease-in-out infinite;
-  filter: drop-shadow(0 6px 18px rgba($accent-2, 0.06));
+/* 故事切换动画 */
+.story-fade-enter-active,
+.story-fade-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.story-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.story-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
-/* 动画关键帧 */
-@keyframes staff-drift {
-  0% {
-    transform: translateY(-4%);
-    opacity: 0.9;
+/* ========== 浮动小人 ========== */
+.floating-chibis {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  pointer-events: none;
+  .chibi-img {
+    position: absolute;
+    width: 80px;
+    pointer-events: auto;
   }
-  50% {
-    transform: translateY(6%);
-    opacity: 0.95;
+}
+
+/* ========== 关键帧动画合并 ========== */
+@keyframes moonBreathe {
+  from {
+    opacity: 0.35;
+    transform: scale(1);
   }
+  to {
+    opacity: 0.8;
+    transform: scale(1.15);
+  }
+}
+@keyframes fireflyFloat {
+  0%,
   100% {
-    transform: translateY(-4%);
-    opacity: 0.9;
+    transform: translate(0, 0) scale(1);
+    opacity: 0.25;
   }
-}
-
-@keyframes note-float {
-  0% {
-    transform: translateY(0) rotate(-6deg) scale(0.95);
+  25% {
+    transform: translate(35px, -70px) scale(1.6);
     opacity: 0.85;
   }
   50% {
-    transform: translateY(-12px) rotate(3deg) scale(1);
-    opacity: 1;
+    transform: translate(-25px, -120px) scale(1.2);
+    opacity: 0.3;
+  }
+  75% {
+    transform: translate(15px, -160px) scale(1);
+    opacity: 0.7;
+  }
+}
+@keyframes swordSweep {
+  0% {
+    transform: translateX(-25%) rotate(-12deg);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.9;
+  }
+  65% {
+    opacity: 0.7;
   }
   100% {
-    transform: translateY(0) rotate(-6deg) scale(0.95);
-    opacity: 0.85;
+    transform: translateX(45%) rotate(-12deg);
+    opacity: 0;
+  }
+}
+@keyframes inkDrop {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(80vh);
+    opacity: 0;
+  }
+}
+@keyframes ripple {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+@keyframes hatFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(2deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-12px) rotate(-2deg);
+    opacity: 0.55;
+  }
+}
+@keyframes rainFall {
+  0% {
+    transform: translateY(-2%);
+  }
+  100% {
+    transform: translateY(2%);
+  }
+}
+@keyframes mistRise {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+@keyframes shimmerLine {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(10px, -10px) scale(1.1);
   }
 }
 
-/* 响应式：小屏适配（保留原逻辑，仅小幅调整文字色调与阴影） */
-@media (max-width: 980px) {
+/* ========== 响应式整合 ========== */
+@media (max-width: 768px) {
   .hero {
     grid-template-columns: 1fr;
-    gap: 18px;
-    padding: 8px;
   }
-
   .avatar-card {
-    width: 140px;
-    padding: 8px;
+    width: 80%;
   }
-
-  .hero-panel {
-    padding: 14px;
-  }
-
-  .name {
-    font-size: 1.8rem;
-  }
-
-  .subtitle {
-    font-size: 1rem;
-  }
-
-  .lead {
-    font-size: 0.95rem;
-  }
-
-  .card {
-    padding: 18px;
-    border-radius: 12px;
-  }
-
-  .overview .two-col {
+  .two-col {
     flex-direction: column;
   }
-
-  .special-section .content {
-    flex-direction: column;
-  }
-
-  .ll-stories {
-    .card {
-      border-radius: 10px;
-    }
-
-    .card-head {
-      padding: 12px 12px;
-    }
-
-    .card-body {
-      padding: 14px 12px;
-      min-height: 180px;
-    }
-
-    .card-foot {
-      padding: 8px 12px;
-    }
-  }
-
-  .timeline {
-    overflow: visible;
-  }
-
   .timeline .tl-wrap {
-    padding-left: 14px !important;
-    padding-right: 14px;
-    min-height: 0;
+    padding-left: 20px;
   }
-
-  .timeline .vl {
-    display: none !important;
-  }
-
-  .timeline .tl-list {
-    overflow: visible;
-  }
-
-  .timeline .tl-item {
-    display: block !important;
-    margin: 14px 0 !important;
-    width: 100%;
-  }
-
-  .timeline .tl-card {
-    width: 100% !important;
-    padding: 14px !important;
-    border-left: 0 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-    transform: none !important;
-  }
-
-  .wanted-slim-list {
-    grid-template-columns: 1fr;
+  .vl {
+    display: none;
   }
   .wanted-slim-item {
     flex-direction: column;
-    align-items: stretch;
   }
-  .ws-thumb {
-    width: 100%;
-    height: auto;
-    img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
+
+  // 卡片内边距与字号调整
+  .card {
+    padding: 20px 18px;
+  }
+  .card-head h2 {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+  .report-section .report-title {
+    font-size: 1.2rem;
+  }
+  .report-content {
+    font-size: 0.95rem;
+  }
+
+  // 故事卡片
+  .stories-card {
+    padding: 20px 18px;
+    .card-head .card-title {
+      font-size: 1.6rem;
+      letter-spacing: 3px;
     }
-  }
-  .ws-info {
-    padding-top: 8px;
-  }
-  .ws-thumb .seal {
-    left: 12px;
-    top: 10px;
-    transform: rotate(-12deg);
-    width: 64px;
-    height: 64px;
-    font-size: 14px;
+    .story .story-head {
+      font-size: 1.3rem;
+    }
+    .nav-btn {
+      width: 38px;
+      height: 38px;
+      font-size: 1.6rem;
+    }
   }
 }
 </style>

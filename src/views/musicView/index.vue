@@ -1,16 +1,16 @@
 <template>
   <section
-    class="cantarella-player"
+    class="qiuyuan-player"
     @keydown.space.prevent="onSpace"
     tabindex="0"
     ref="rootEl"
-    aria-label="仇远 音乐播放器"
+    aria-label="弹铗而歌 · 仇远音乐馆"
   >
     <div class="stage">
       <!-- 左侧：封面与控制 -->
       <div class="left" role="region" aria-label="播放器控制区">
         <div class="cover" :style="coverStyle">
-          <!-- video 作为纯装饰性背景，屏读器隐藏 -->
+          <!-- 视频背景 -->
           <video
             v-if="videoSrc"
             class="video-background"
@@ -23,17 +23,19 @@
             tabindex="-1"
             :class="videoClass"
           ></video>
+          <!-- 青墨遮罩 -->
+          <div class="video-overlay"></div>
 
           <!-- 加载遮罩 -->
           <div v-if="loadingAudio" class="loading-overlay" aria-hidden="true">
             <div class="spinner" />
-            <div class="loading-text">加载中…</div>
+            <div class="loading-text">剑意凝神中…</div>
           </div>
         </div>
 
         <div class="controls">
-          <div class="title" :title="current?.title || '未选择曲目'">
-            {{ current?.title || "未选择曲目" }}
+          <div class="title" :title="current?.title || '未选曲目'">
+            {{ current?.title || "未选曲目" }}
           </div>
 
           <div class="meta">
@@ -42,7 +44,7 @@
             <span class="time">{{ formatTime(duration) }}</span>
           </div>
 
-          <!-- 进度条（Pointer 支持）-->
+          <!-- 进度条 -->
           <div
             class="progress-wrap"
             ref="progressWrap"
@@ -127,17 +129,16 @@
       >
         <div class="playlist-header">
           <div class="left-head">
-            <h3>播放列表</h3>
-            <!-- 文本展开/收起按钮（替换文件夹图标） -->
+            <h3>剑曲藏匣</h3>
             <button
               class="toggle-list-text"
               @click="togglePlaylist"
-              :title="playlistOpen ? '收起播放列表' : '展开播放列表'"
+              :title="playlistOpen ? '收起列表' : '展开列表'"
             >
               {{ playlistOpen ? "收起" : "展开" }}
             </button>
             <div class="api-hint">
-              {{ loading ? "加载中…" : list.length ? "" : "目录为空" }}
+              {{ loading ? "加载中…" : list.length ? "" : "剑匣尚空" }}
             </div>
           </div>
 
@@ -145,7 +146,7 @@
             <input
               v-model="searchTerm"
               @input="onSearchInput"
-              placeholder="搜索曲名..."
+              placeholder="搜索剑曲…"
               aria-label="搜索曲目"
             />
             <button
@@ -162,14 +163,14 @@
         <div class="list-area">
           <div v-if="loading" class="list-loading">
             <div class="small-spinner" />
-            加载目录...
+            加载曲目...
           </div>
 
           <ul class="playlist" role="list">
             <li
               v-for="(item, idx) in filteredList"
               :key="item.name || idx"
-              :class="{ active: idx === index }"
+              :class="{ active: current && item.name === current.name }"
               @click="selectTrack(idx)"
               tabindex="0"
               @keyup.enter="selectTrack(idx)"
@@ -178,7 +179,6 @@
             >
               <div class="left-col">
                 <div class="dot" aria-hidden="true"></div>
-                <!-- 尽量显示完整名称：允许换行，窄屏时限制为两行 -->
                 <div class="title" :title="item.title">{{ item.title }}</div>
               </div>
               <div class="right-col">
@@ -201,6 +201,17 @@
       @error="onAudioError"
       preload="metadata"
     ></audio>
+
+    <!-- 浮动小人 -->
+    <div class="floating-chibis">
+      <img
+        v-for="(pet, i) in chibiList"
+        :key="i"
+        :src="pet.src"
+        :style="{ top: pet.top + 'px', left: pet.left + 'px' }"
+        class="chibi-img"
+      />
+    </div>
   </section>
 </template>
 
@@ -213,7 +224,8 @@ import {
   watch,
   nextTick,
 } from "vue";
-import { getMusicList, getMusicUrl } from "@/api/modules/music"; // 请确认路径
+import { getMusicList, getMusicUrl } from "@/api/modules/music";
+import gsap from "gsap";
 
 type MusicItem = {
   name: string;
@@ -230,7 +242,7 @@ const audioRef = ref<HTMLAudioElement | null>(null);
 const currentTime = ref<number>(0);
 const duration = ref<number>(0);
 const volume = ref<number>(
-  Number(localStorage.getItem("cantarella_volume") ?? 0.8)
+  Number(localStorage.getItem("qiuyuan_volume") ?? 0.8)
 );
 const shuffle = ref<boolean>(false);
 const repeatMode = ref<"off" | "one" | "all">("off");
@@ -242,22 +254,18 @@ const playlistOpen = ref(true);
 const errorMessage = ref<string | null>(null);
 const loadingAudio = ref(false);
 
-// 根据窗口宽度判断移动端
 const isMobile = ref<boolean>(window.innerWidth <= 920);
 window.addEventListener("resize", () => {
   isMobile.value = window.innerWidth <= 920;
 });
 
-// 随机选择视频源（mp1/mp2 里）
 const videoSrc = ref("");
-const videoClass = ref(""); // "landscape" or "portrait"
+const videoClass = ref("");
 
-// 搜索相关
 const searchTerm = ref("");
 let searchTimer: any = null;
 const searchDebounceMs = 240;
 
-// 当前曲目与进度计算
 const current = computed(() =>
   index.value >= 0 && list.value[index.value] ? list.value[index.value] : null
 );
@@ -269,25 +277,25 @@ const progressPercent = computed(() =>
 
 // 封面渐变（仇远风格）
 const coverStyle = computed(() => {
-  const t = current.value?.title || "cantarella";
+  const t = current.value?.title || "qiuyuan";
   let hash = 0;
   for (let i = 0; i < t.length; i++)
     hash = (hash << 5) - hash + t.charCodeAt(i);
-  const r1 = (Math.abs(hash) % 120) + 40;
-  const r2 = (Math.abs(hash * 3) % 120) + 40;
+  const r1 = (Math.abs(hash) % 80) + 30; // 暗青
+  const r2 = (Math.abs(hash * 3) % 100) + 20;
   return {
-    background: `radial-gradient(circle at 28% 28%, rgba(95,224,255,0.06), transparent 12%), linear-gradient(135deg, rgba(${r1},${r2},255,0.08), rgba(111,92,230,0.08))`,
+    background: `radial-gradient(circle at 28% 28%, rgba(180,230,226,0.08), transparent 12%), linear-gradient(135deg, rgba(${r1},${r2},${
+      (Math.abs(hash) % 40) + 80
+    },0.12), rgba(${r2},${r1 + 20},${(Math.abs(hash) % 60) + 60},0.1))`,
   };
 });
 
-// 过滤后的列表（基于搜索）
 const filteredList = computed(() => {
   const term = (searchTerm.value || "").trim().toLowerCase();
   if (!term) return list.value;
   return list.value.filter((i) => (i.title || "").toLowerCase().includes(term));
 });
 
-// 获取列表
 async function fetchList() {
   loading.value = true;
   try {
@@ -304,11 +312,6 @@ async function fetchList() {
       url: getMusicUrl(it.name),
       duration: null,
     }));
-    // // 自动选中第一首不自动播放
-    // if (list.value.length > 0) {
-    //    index.value = 0;
-    //    await loadCurrent(false);
-    // }
   } catch (e) {
     console.error("获取音乐列表失败", e);
     list.value = [];
@@ -318,7 +321,6 @@ async function fetchList() {
   }
 }
 
-// 设置并预检音源
 async function safeSetSrc(url: string) {
   const a = audioRef.value!;
   errorMessage.value = null;
@@ -327,12 +329,8 @@ async function safeSetSrc(url: string) {
     try {
       const head = await fetch(url, { method: "HEAD" });
       if (!head.ok) throw new Error(`资源响应 ${head.status}`);
-      const ct = head.headers.get("content-type") || "";
-      if (!ct.includes("audio")) {
-        console.warn("content-type 不是 audio:", ct);
-      }
     } catch (e) {
-      // 忽略 HEAD 失败
+      /* ignore */
     }
     a.src = url;
     a.load();
@@ -341,7 +339,7 @@ async function safeSetSrc(url: string) {
     errorMessage.value = "无法加载音频资源";
     throw err;
   } finally {
-    // loadingAudio 会在 loadedmetadata 或 error 中被关闭
+    // loadingAudio 在 loadedmetadata 或 error 中关闭
   }
 }
 
@@ -374,19 +372,24 @@ async function play() {
     errorMessage.value = "播放被浏览器阻止或资源不可用";
   }
 }
+
 function pause() {
   audioRef.value?.pause();
   playing.value = false;
 }
+
 function togglePlay() {
   if (!audioRef.value) return;
   if (playing.value) pause();
   else play();
 }
 
-function selectTrack(i: number) {
-  if (i < 0 || i >= list.value.length) return;
-  index.value = i;
+function selectTrack(idxInFiltered: number) {
+  const item = filteredList.value[idxInFiltered];
+  if (!item) return;
+  const originalIndex = list.value.findIndex((it) => it.name === item.name);
+  if (originalIndex === -1) return;
+  index.value = originalIndex;
   loadCurrent(true);
 }
 
@@ -395,6 +398,7 @@ function onTimeUpdate(e: Event) {
   const t = e.target as HTMLAudioElement;
   currentTime.value = t.currentTime || 0;
 }
+
 function onLoadedMetadata(e: Event) {
   const t = e.target as HTMLAudioElement;
   duration.value = isFinite(t.duration) ? t.duration : 0;
@@ -402,6 +406,7 @@ function onLoadedMetadata(e: Event) {
     current.value.duration = duration.value;
   loadingAudio.value = false;
 }
+
 function onEnded() {
   loadingAudio.value = false;
   if (repeatMode.value === "one") {
@@ -421,15 +426,14 @@ function onEnded() {
     else playing.value = false;
   }
 }
+
 function onAudioError(e: Event) {
-  const a = audioRef.value;
-  console.error("audio error", a?.error);
+  console.error("audio error");
   errorMessage.value = "音频播放出错";
   playing.value = false;
   loadingAudio.value = false;
 }
 
-// 上一/下一/随机
 function next() {
   if (!list.value.length) return;
   if (shuffle.value) {
@@ -439,6 +443,7 @@ function next() {
   if (index.value < list.value.length - 1) selectTrack(index.value + 1);
   else if (repeatMode.value === "all") selectTrack(0);
 }
+
 function prev() {
   if (!audioRef.value) return;
   if (audioRef.value.currentTime > 4) {
@@ -448,6 +453,7 @@ function prev() {
   if (index.value > 0) selectTrack(index.value - 1);
   else if (repeatMode.value === "all") selectTrack(list.value.length - 1);
 }
+
 function playRandom() {
   if (!list.value.length) return;
   if (list.value.length === 1) {
@@ -459,7 +465,6 @@ function playRandom() {
   selectTrack(i);
 }
 
-// 进度条：点击 & 拖拽
 function seekByClick(e: MouseEvent | TouchEvent) {
   if (!progressWrap.value || !duration.value || !audioRef.value) return;
   const rect = progressWrap.value.getBoundingClientRect();
@@ -471,6 +476,7 @@ function seekByClick(e: MouseEvent | TouchEvent) {
   audioRef.value.currentTime = ratio * duration.value;
   currentTime.value = audioRef.value.currentTime;
 }
+
 function onPointerDownProgress(e: PointerEvent) {
   if (!progressWrap.value || !audioRef.value || !duration.value) return;
   dragging.value = true;
@@ -479,14 +485,17 @@ function onPointerDownProgress(e: PointerEvent) {
   window.addEventListener("pointerup", onPointerUpProgress);
   handlePointer(e);
 }
+
 function onPointerMoveProgress(e: PointerEvent) {
   handlePointer(e);
 }
-function onPointerUpProgress(e: PointerEvent) {
+
+function onPointerUpProgress() {
   dragging.value = false;
   window.removeEventListener("pointermove", onPointerMoveProgress);
   window.removeEventListener("pointerup", onPointerUpProgress);
 }
+
 function handlePointer(e: PointerEvent) {
   if (!progressWrap.value || !audioRef.value || !duration.value) return;
   const rect = progressWrap.value.getBoundingClientRect();
@@ -496,23 +505,21 @@ function handlePointer(e: PointerEvent) {
   currentTime.value = audioRef.value.currentTime;
 }
 
-// 音量持久化
 watch(volume, (v) => {
   if (audioRef.value) audioRef.value.volume = v;
-  localStorage.setItem("cantarella_volume", String(v));
+  localStorage.setItem("qiuyuan_volume", String(v));
 });
 
-// 模式切换
 function toggleShuffle() {
   shuffle.value = !shuffle.value;
 }
+
 function toggleRepeat() {
   if (repeatMode.value === "off") repeatMode.value = "all";
   else if (repeatMode.value === "all") repeatMode.value = "one";
   else repeatMode.value = "off";
 }
 
-// 键盘空格
 function onSpace() {
   if (
     document.activeElement &&
@@ -522,7 +529,6 @@ function onSpace() {
   togglePlay();
 }
 
-// 切换播放列表（文字）
 function togglePlaylist() {
   playlistOpen.value = !playlistOpen.value;
   if (playlistOpen.value)
@@ -532,19 +538,17 @@ function togglePlaylist() {
     });
 }
 
-// 搜索防抖
 function onSearchInput() {
   if (searchTimer) clearTimeout(searchTimer);
   searchTimer = setTimeout(() => {
-    // 过滤由 computed filteredList 完成
     searchTimer = null;
   }, searchDebounceMs);
 }
+
 function clearSearch() {
   searchTerm.value = "";
 }
 
-// 格式化时间
 function formatTime(sec?: number) {
   if (!sec || !isFinite(sec)) return "--:--";
   const s = Math.floor(sec % 60);
@@ -552,31 +556,103 @@ function formatTime(sec?: number) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-// 生命周期：绑定 audio ref、初始化列表和 videoSrc
+interface Chibi {
+  src: string;
+  top: number;
+  left: number;
+}
+const chibiList = ref<Chibi[]>([]);
+
 onMounted(async () => {
-  audioRef.value =
-    (document.querySelector(".cantarella-player audio") as HTMLAudioElement) ??
-    null;
   if (audioRef.value) audioRef.value.volume = volume.value;
 
-  // 设置 videoSrc 与 class：桌面优先横屏(mp1), 移动优先竖屏(mp2)
   const isM = isMobile.value;
   const folder = isM ? "/mp1" : "/mp2";
-  // 随机选择 1..4，如果没有资源请保证路径存在
-  // const idx = Math.floor(Math.random() * 4) + 1;
-  videoSrc.value = `${folder}/1 (1).mp4`;
+  const idx = Math.floor(Math.random() * 3) + 1;
+  videoSrc.value = `${folder}/1 (${idx}).mp4`;
   videoClass.value = isM ? "landscape" : "portrait";
 
   await fetchList();
 
   window.addEventListener("keydown", globalKeydown);
+
+  // 浮动小人
+  const total = 8;
+  let pickCount = isMobile.value ? 1 : 3;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const imgWidth = 100,
+    imgHeight = 100;
+
+  function shuffle<T>(arr: T[]) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const nums = shuffle(Array.from({ length: total }, (_, k) => k + 1));
+  const picks = nums.slice(0, pickCount);
+  chibiList.value = picks.map((i) => ({
+    src: `/QImages/1 (${i}).png`,
+    left: Math.random() * (vw - imgWidth),
+    top: Math.random() * (vh - imgHeight),
+  }));
+
+  await nextTick();
+  const imgs = document.querySelectorAll<HTMLImageElement>(".chibi-img");
+  imgs.forEach((img, index) => {
+    const padding = 200;
+    gsap.fromTo(
+      img,
+      { opacity: 0, scale: 0.5 },
+      {
+        opacity: 1,
+        scale: 1,
+        duration: 0.8,
+        ease: "back.out(2)",
+        delay: 0.2 * index,
+      }
+    );
+    img.addEventListener("mouseenter", () => {
+      gsap.killTweensOf(img);
+      gsap.to(img, {
+        x: `+=${((Math.random() - 0.5) * 400).toFixed(0)}`,
+        y: `+=${((Math.random() - 0.5) * 400).toFixed(0)}`,
+        duration: 1.2,
+        ease: "back.out(2)",
+        onComplete: () => animate(img),
+      });
+    });
+    const animate = (el: HTMLImageElement) => {
+      const rect = el.getBoundingClientRect();
+      let dx = (Math.random() - 0.5) * 200,
+        dy = (Math.random() - 0.5) * 200;
+      if (rect.x + dx < padding) dx = padding - rect.x;
+      if (rect.x + dx + el.width > window.innerWidth - padding)
+        dx = window.innerWidth - padding - (rect.x + el.width);
+      if (rect.y + dy < padding) dy = padding - rect.y;
+      if (rect.y + dy + el.height > window.innerHeight - padding)
+        dy = window.innerHeight - padding - (rect.y + el.height);
+      gsap.to(el, {
+        x: `+=${dx.toFixed(0)}`,
+        y: `+=${dy.toFixed(0)}`,
+        rotation: `+=${((Math.random() - 0.5) * 60).toFixed(0)}`,
+        duration: 2 + Math.random() * 2,
+        ease: "power1.inOut",
+        onComplete: () => animate(el),
+      });
+    };
+    animate(img);
+  });
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", globalKeydown);
 });
 
-// 全局键盘
 function globalKeydown(e: KeyboardEvent) {
   if (e.code === "Space") {
     if (
@@ -593,107 +669,135 @@ function globalKeydown(e: KeyboardEvent) {
 </script>
 
 <style scoped lang="scss">
-$bg-deep: #060e12; // 深海夜色底
-$deep-2: #0a1416; // 次深底用于渐变
+/* ========== 仇远色彩变量 ========== */
+.qiuyuan-player {
+  --bamboo-green: #2e8f74;
+  --blade-silver: #cfeee8;
+  --moon-light: #b4e6e2;
+  --deep-ink: #0b1a16;
+  --night-base: #050a0c;
+  --text-primary: #f0faf8;
+  --text-secondary: rgba(207, 238, 232, 0.7);
+  --card-bg: rgba(5, 10, 12, 0.6);
+  --card-border: rgba(46, 143, 116, 0.25);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 
-$accent-1: #2e8f74; // 暗紫主光（冷雅）
-$accent-2: #cfeee8; // 冷海蓝高光（湿光感）
-
-$blood: #ff6b85;
-$text: #e8f6f4;
-$glass: rgba(95, 224, 255, 0.04);
-$shadow: rgba(1, 2, 6, 0.6);
-
-/* 整体 */
-.cantarella-player {
+  position: relative;
   padding: 20px;
   min-height: 100vh;
-  background: radial-gradient(
-      800px 220px at 18% 10%,
-      rgba($accent-1, 0.02),
-      transparent 8%
-    ),
-    linear-gradient(180deg, $deep-2 0%, $bg-deep 100%);
-  color: $text;
-  padding-top: 80px;
-  font-family: "Noto Sans SC", "Inter", system-ui, -apple-system, "Segoe UI",
-    Roboto, Arial;
+  background: var(--night-base);
+  color: var(--text-primary);
+  padding-top: 90px;
+  font-family: "Noto Serif SC", "STKaiti", "KaiTi", serif;
   outline: none;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+  // 竹林网格背景
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent 0 38px,
+        rgba(46, 143, 116, 0.03) 38px 40px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0 2px,
+        rgba(46, 143, 116, 0.025) 2px 4px
+      ),
+      radial-gradient(
+        ellipse at 50% 30%,
+        transparent 40%,
+        rgba(5, 10, 12, 0.7) 100%
+      );
+  }
+
+  // 顶部竹青装饰线
+  &::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--bamboo-green),
+      var(--blade-silver),
+      transparent
+    );
+    z-index: 10;
+    opacity: 0.5;
+    box-shadow: 0 0 10px rgba(46, 143, 116, 0.5);
+  }
 }
 
-/* 五线谱微纹理 */
-.cantarella-player::before {
-  content: "";
-  position: fixed;
-  left: 0;
-  top: 100px;
-  width: 100%;
-  height: 200px;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.01) 0px,
-    rgba(255, 255, 255, 0.01) 1px,
-    transparent 1px,
-    transparent 18px
-  );
-  opacity: 0.04;
-  pointer-events: none;
-  mix-blend-mode: overlay;
-}
-
-/* 主区域布局 */
 .stage {
+  position: relative;
+  z-index: 5;
   display: flex;
-  gap: 18px;
-  max-width: 1100px;
+  gap: 24px;
+  max-width: 1200px;
   margin: 0 auto;
   align-items: flex-start;
 }
 
-/* 左侧 */
+/* ========== 左侧播放器 ========== */
 .left {
-  width: 420px;
-  background: linear-gradient(180deg, rgba(6, 6, 8, 0.34), rgba(4, 4, 6, 0.18));
-  border: 1px solid $glass;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 18px 56px $shadow;
+  width: 440px;
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  border-radius: 20px;
+  padding: 18px;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(46, 143, 116, 0.1);
   position: relative;
-  min-height: 380px;
+  min-height: 400px;
 }
 
-/* cover 区 */
+/* 封面区 */
 .cover {
   width: 100%;
-  height: 560px;
-  border-radius: 10px;
-  background: linear-gradient(
-    135deg,
-    rgba($accent-2, 0.12),
-    rgba($accent-1, 0.06)
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 640px;
+  border-radius: 14px;
   overflow: hidden;
   position: relative;
-  box-shadow: inset 0 -6px 28px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 -6px 20px rgba(0, 0, 0, 0.5),
+    0 8px 20px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(46, 143, 116, 0.2);
 }
 
-/* 视频比例控制：横向/纵向 */
 .video-background {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.9;
-  transform: scale(1.02);
-  filter: saturate(0.92) contrast(0.95) blur(0.2px);
+  opacity: 0.75;
+  filter: saturate(0.6) contrast(1.1) brightness(0.8);
+  transition: opacity 0.3s;
 }
+
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(5, 10, 12, 0.4),
+    rgba(46, 143, 116, 0.1)
+  );
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
 .video-background.landscape {
   aspect-ratio: 16 / 9;
 }
+
 .video-background.portrait {
   aspect-ratio: 9 / 16;
   width: auto;
@@ -708,29 +812,34 @@ $shadow: rgba(1, 2, 6, 0.6);
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.28));
+  background: rgba(5, 10, 12, 0.7);
+  backdrop-filter: blur(4px);
   z-index: 8;
 }
+
 .spinner,
 .small-spinner {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.06);
-  border-top-color: rgba($accent-1, 0.9);
+  border: 3px solid rgba(46, 143, 116, 0.2);
+  border-top-color: var(--blade-silver);
   animation: spin 1s linear infinite;
 }
+
 .small-spinner {
-  width: 18px;
-  height: 18px;
-  border-width: 3px;
-  border-top-color: rgba($accent-2, 0.9);
-  margin-right: 8px;
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+  border-top-color: var(--bamboo-green);
+  margin-right: 10px;
 }
+
 .loading-text {
-  margin-top: 8px;
-  color: rgba($text, 0.9);
-  font-weight: 700;
+  margin-top: 12px;
+  color: var(--blade-silver);
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 
 @keyframes spin {
@@ -739,280 +848,384 @@ $shadow: rgba(1, 2, 6, 0.6);
   }
 }
 
-/* 控件 */
+/* 控件区域 */
 .controls {
-  margin-top: 12px;
+  margin-top: 18px;
+  padding: 0 4px;
 }
+
 .title {
-  font-size: 1.05rem;
-  font-weight: 900;
-  color: $accent-1;
-  letter-spacing: 0.2px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--blade-silver);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 8px;
 }
+
 .meta {
-  margin-top: 6px;
-  font-size: 0.95rem;
-  color: rgba($text, 0.86);
   display: flex;
   gap: 8px;
   align-items: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  .divider {
+    color: var(--bamboo-green);
+    opacity: 0.5;
+  }
 }
 
 /* 进度条 */
 .progress-wrap {
-  margin-top: 12px;
-  cursor: pointer;
+  margin: 16px 0;
+  animation: cursorAnimation_link 1s infinite step-start;
   touch-action: none;
-}
-.progress-bar {
-  height: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 10px;
-  overflow: hidden;
   position: relative;
 }
+
+.progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 .progress {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, $accent-2, $accent-1);
-  box-shadow: 0 6px 18px rgba($accent-1, 0.06) inset;
-  transition: width 120ms linear;
+  background: linear-gradient(90deg, var(--bamboo-green), var(--blade-silver));
+  box-shadow: 0 0 10px var(--bamboo-green);
+  transition: width 80ms linear;
 }
+
 .progress-handle {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: $accent-1;
+  background: var(--blade-silver);
+  border: 2px solid var(--bamboo-green);
   transform: translateX(-50%);
   position: relative;
-  top: -3px;
-  box-shadow: 0 8px 26px rgba($accent-1, 0.14);
+  top: -5px;
+  box-shadow: 0 2px 10px rgba(46, 143, 116, 0.5);
+  cursor: grab;
+  &:hover {
+    transform: translateX(-50%) scale(1.2);
+  }
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 /* 按钮行 */
 .btns {
-  margin-top: 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-}
-.icon,
-.play {
-  border: none;
-  background: transparent;
-  color: $text;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-  transition: transform 160ms, background 160ms;
-}
-.play {
-  font-size: 20px;
-  background: linear-gradient(
-    90deg,
-    rgba($accent-2, 0.12),
-    rgba($accent-1, 0.06)
-  );
-  padding: 8px 12px;
-  border-radius: 12px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
-}
-.icon:hover,
-.play:hover {
-  transform: translateY(-4px);
-}
-.modes button {
-  margin-right: 8px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  padding: 6px 8px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.modes .active {
-  background: linear-gradient(
-    90deg,
-    rgba($accent-1, 0.06),
-    rgba($accent-2, 0.04)
-  );
-  border-color: rgba($accent-1, 0.12);
-}
-.volume input[type="range"] {
-  width: 120px;
-}
-.toggle-list-text {
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  color: rgba($text, 0.95);
-  cursor: pointer;
-  display: none;
+  margin-top: 8px;
 }
 
-/* 错误 */
+.icon,
+.play {
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--blade-silver);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    border-color: var(--bamboo-green);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.play {
+  background: linear-gradient(135deg, var(--bamboo-green), var(--deep-ink));
+  padding: 8px 18px;
+  font-size: 20px;
+  border-color: var(--bamboo-green);
+  color: #fff;
+  &:hover {
+    background: linear-gradient(135deg, var(--bamboo-green), #041414);
+    border-color: var(--blade-silver);
+    box-shadow: 0 0 20px rgba(46, 143, 116, 0.4);
+  }
+}
+
+.modes {
+  display: flex;
+  gap: 6px;
+  margin-left: 4px;
+  button {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    &:hover {
+      color: var(--blade-silver);
+      border-color: var(--bamboo-green);
+    }
+    &.active {
+      background: rgba(46, 143, 116, 0.2);
+      border-color: var(--bamboo-green);
+      color: var(--blade-silver);
+    }
+  }
+}
+
+.volume {
+  margin-left: auto;
+  input[type="range"] {
+    width: 100px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    animation: cursorAnimation_link 1s infinite step-start;
+    -webkit-appearance: none;
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--bamboo-green);
+      border: 2px solid var(--blade-silver);
+      animation: cursorAnimation_link 1s infinite step-start;
+      box-shadow: 0 0 8px var(--bamboo-green);
+    }
+  }
+}
+
+.toggle-list-text {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--blade-silver);
+  font-weight: 600;
+  cursor: pointer;
+  display: none;
+  &:hover {
+    background: rgba(46, 143, 116, 0.15);
+  }
+}
+
 .error-msg {
-  margin-top: 10px;
-  color: $blood;
-  font-weight: 700;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(201, 74, 58, 0.15);
+  border-left: 4px solid #c94a3a;
+  border-radius: 6px;
+  color: #ffb36b;
+  font-weight: 600;
   font-size: 0.9rem;
 }
 
-/* 右侧列表 */
+/* ========== 右侧播放列表 ========== */
 .right {
   flex: 1;
-  max-height: 68vh;
+  max-height: 65vh;
   overflow: hidden;
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(6, 6, 8, 0.22), rgba(4, 4, 6, 0.12));
-  border: 1px solid rgba(255, 255, 255, 0.02);
-  padding: 12px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  border-radius: 20px;
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  padding: 18px;
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-  transition: max-height 260ms ease;
+  transition: max-height 0.3s ease;
+  &.collapsed {
+    max-height: 70px;
+  }
 }
 
-/* 折叠态 */
-.right.collapsed {
-  max-height: 64px;
-}
-
-/* header */
 .playlist-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  gap: 12px;
+  margin-bottom: 16px;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--card-border);
 }
+
 .left-head {
   display: flex;
   gap: 12px;
   align-items: center;
-}
-.playlist-header h3 {
-  margin: 0;
-  color: $accent-2;
-  font-weight: 900;
-}
-.api-hint {
-  color: rgba($text, 0.6);
-  font-size: 0.9rem;
+  h3 {
+    margin: 0;
+    font-family: "ZCOOL KuaiLe", serif;
+    color: var(--blade-silver);
+    font-weight: 700;
+    letter-spacing: 3px;
+  }
 }
 
-/* 搜索 */
+.api-hint {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
 .search-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-.search-wrap input {
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  background: linear-gradient(180deg, rgba(8, 4, 8, 0.48), rgba(6, 2, 6, 0.44));
-  color: $text;
-  width: 220px;
-}
-.search-wrap .clear {
-  background: transparent;
-  border: none;
-  color: rgba($text, 0.7);
-  cursor: pointer;
+  input {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--text-primary);
+    width: 220px;
+    font-size: 0.9rem;
+    outline: none;
+    &::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+    &:focus {
+      border-color: var(--bamboo-green);
+      box-shadow: 0 0 8px rgba(46, 143, 116, 0.3);
+    }
+  }
+  .clear {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    &:hover {
+      border-color: var(--bamboo-green);
+      color: var(--blade-silver);
+    }
+  }
 }
 
-/* 列表区域 */
 .list-area {
   position: relative;
   flex: 1;
   overflow: hidden;
 }
+
 .list-loading {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: rgba($text, 0.7);
-  padding: 10px 0;
+  gap: 12px;
+  color: var(--blade-silver);
+  padding: 20px 0;
 }
 
-/* 列表 */
 .playlist {
   list-style: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
   overflow-y: auto;
-  max-height: calc(68vh - 52px);
-  display: block;
-}
-.playlist li {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: center;
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 160ms, transform 160ms;
-}
-.playlist li:hover {
-  transform: translateX(6px);
-  background: linear-gradient(
-    90deg,
-    rgba($accent-1, 0.03),
-    rgba($accent-2, 0.02)
-  );
-}
-.playlist li.active {
-  background: linear-gradient(
-    90deg,
-    rgba($accent-1, 0.06),
-    rgba($accent-2, 0.04)
-  );
-  box-shadow: 0 8px 28px rgba($accent-1, 0.04) inset;
-}
-
-/* 左列 */
-.left-col {
+  max-height: calc(65vh - 100px);
   display: flex;
-  gap: 12px;
-  align-items: center;
-  min-width: 0;
-}
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: linear-gradient(90deg, $accent-2, $accent-1);
-  box-shadow: 0 6px 18px rgba($accent-1, 0.06);
-  flex: 0 0 auto;
-}
-.title {
-  font-weight: 700;
-  color: $text;
-  overflow-wrap: anywhere; /* 允许换行显示 */
-  max-width: 100%;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    background: rgba(6, 16, 18, 0.4);
+    &:hover {
+      transform: translateX(-6px);
+      background: rgba(46, 143, 116, 0.08);
+      border-color: var(--card-border);
+    }
+    &.active {
+      background: linear-gradient(
+        90deg,
+        rgba(46, 143, 116, 0.2),
+        rgba(46, 143, 116, 0.05)
+      );
+      border-left: 4px solid var(--bamboo-green);
+      border-radius: 8px 12px 12px 8px;
+      .dot {
+        background: var(--bamboo-green);
+        box-shadow: 0 0 10px var(--bamboo-green);
+      }
+    }
+    .left-col {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      min-width: 0;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--blade-silver);
+      box-shadow: 0 0 6px var(--bamboo-green);
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .title {
+      font-weight: 600;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.4;
+    }
+    .len {
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.85rem;
+      min-width: 48px;
+      text-align: right;
+    }
+  }
 }
 
-/* 对窄屏尽量显示两行 */
-.title {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* 浮动小人 */
+.floating-chibis {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  .chibi-img {
+    position: absolute;
+    width: 80px;
+    pointer-events: auto;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
+  }
 }
 
-/* 右列时长 */
-.len {
-  color: rgba($text, 0.6);
-  font-weight: 700;
-  min-width: 48px;
-  text-align: right;
-}
-
+/* ========== 响应式 ========== */
 @media (max-width: 920px) {
   .toggle-list-text {
     display: block;
@@ -1030,48 +1243,32 @@ $shadow: rgba(1, 2, 6, 0.6);
   .right {
     width: 100%;
     max-height: none;
-    order: 3;
   }
-
-  .mini-left {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  .mini-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: linear-gradient(90deg, $accent-2, $accent-1);
-  }
-  .mini-title {
-    font-weight: 700;
-    font-size: 0.95rem;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .mini-right .play {
-    width: 44px;
-    height: 44px;
-    display: inline-grid;
-    place-items: center;
-    font-size: 16px;
-    padding: 0;
-    border-radius: 8px;
+  .search-wrap input {
+    width: 160px;
   }
 }
 
-/* 小屏微调 */
 @media (max-width: 520px) {
-  .search-wrap input {
-    width: 140px;
+  .qiuyuan-player {
+    padding: 12px;
+    padding-top: 80px;
   }
-
-  .progress-handle {
-    width: 14px;
-    height: 14px;
+  .btns {
+    gap: 8px;
+  }
+  .volume input[type="range"] {
+    width: 70px;
+  }
+  .playlist-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .search-wrap {
+    width: 100%;
+    input {
+      flex: 1;
+    }
   }
 }
 </style>

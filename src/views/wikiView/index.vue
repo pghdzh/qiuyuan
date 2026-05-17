@@ -1,7 +1,7 @@
 <template>
-  <div class="wiki-page">
-    <!-- 背景轮播放在最底层 -->
-    <div class="carousel">
+  <div class="qiuyuan-wiki">
+    <!-- 背景轮播 -->
+    <div class="carousel carousel1" aria-hidden="true">
       <img
         v-for="(src, idx) in randomFive"
         :key="idx"
@@ -9,25 +9,38 @@
         class="carousel-image"
         :class="{ active: idx === currentIndex }"
       />
+      <div class="carousel-overlay"></div>
     </div>
+    <div class="carousel carousel2" aria-hidden="true">
+      <img
+        v-for="(src, idx) in randomFive2"
+        :key="idx"
+        :src="src"
+        class="carousel-image"
+        :class="{ active: idx === currentIndex }"
+      />
+      <div class="carousel-overlay"></div>
+    </div>
+
+    <!-- 页眉 -->
     <header class="wiki-header">
       <div class="title">
-        <h1>仇远 Wiki</h1>
-        <p class="subtitle">浪客笔记,江湖见闻</p>
+        <h1>琅嬛秘典</h1>
+        <p class="subtitle">武林秘籍，尽藏其中 · 仇远 Wiki</p>
       </div>
       <div class="actions">
         <input
           v-model="search"
           class="search"
-          placeholder="搜索标题或者标签..."
+          placeholder="搜索剑谱或标签..."
         />
-        <button class="btn btn-new" @click="openCreate">新建词条</button>
+        <button class="btn btn-new" @click="openCreate">镌刻新篇</button>
       </div>
     </header>
 
     <main class="wiki-body">
       <div v-if="filteredEntries.length === 0" class="empty">
-        没有找到匹配的词条 ✨
+        剑匣无痕，尚无匹配的秘典
       </div>
 
       <ul class="entry-list">
@@ -36,12 +49,12 @@
             <div class="entry-meta" @click="openDetail(entry)">
               <div class="entry-title-wrap">
                 <h2 class="entry-title">{{ entry.title }}</h2>
-                <span class="entry-badge">#{{ entry.slug || "未设置" }}</span>
+                <span class="entry-badge">#{{ entry.slug || "未分类" }}</span>
               </div>
               <div class="entry-info">
-                <span class="meta-item">作者：{{ entry.author }}</span>
+                <span class="meta-item">撰者：{{ entry.author }}</span>
                 <span class="meta-item"
-                  >时间：{{ formatTime(entry.updatedAt) }}</span
+                  >修于：{{ formatTime(entry.updatedAt) }}</span
                 >
               </div>
             </div>
@@ -64,9 +77,9 @@
                 <span class="like-count">{{ entry.likes }}</span>
               </button>
               <div class="edit-delete" v-if="canEdit(entry.id)">
-                <button class="small" @click="openEdit(entry)">编辑</button>
+                <button class="small" @click="openEdit(entry)">修撰</button>
                 <button class="small danger" @click="remove(entry.id)">
-                  删除
+                  焚毁
                 </button>
               </div>
             </div>
@@ -75,53 +88,47 @@
       </ul>
     </main>
 
-    <!-- Edit/Create Modal -->
+    <!-- 新建/编辑弹窗 -->
     <transition name="fade-zoom">
       <div class="modal-overlay" v-if="showModal">
         <div class="modal">
           <header class="modal-header">
-            <h3>{{ editing ? "编辑词条" : "新建词条" }}</h3>
+            <h3>{{ editing ? "修撰秘典" : "镌刻新篇" }}</h3>
             <button class="close" @click="closeModal">✕</button>
           </header>
           <section class="modal-body">
             <label>
-              标题
+              剑谱之名
               <input v-model="form.title" placeholder="输入标题" />
             </label>
-
             <label>
-              词条（短标签）
-              <input
-                v-model="form.slug"
-                placeholder="比如：彩蛋、考据、点位等等"
-              />
+              分类标签
+              <input v-model="form.slug" placeholder="如：彩蛋、AI人设、攻略" />
             </label>
-
             <label>
-              作者
-              <input v-model="form.author" placeholder="作者昵称" />
+              撰者
+              <input v-model="form.author" placeholder="作者名号" />
             </label>
-
             <label>
-              内容
+              秘典正文
               <textarea
                 v-model="form.content"
                 rows="8"
-                placeholder="在这里输入词条内容"
+                placeholder="在此书写秘典内容…"
               ></textarea>
             </label>
           </section>
           <footer class="modal-footer">
-            <button class="btn ghost" @click="closeModal">取消</button>
+            <button class="btn ghost" @click="closeModal">回鞘</button>
             <button class="btn" @click="submit">
-              {{ editing ? "保存" : "创建" }}
+              {{ editing ? "存卷" : "入典" }}
             </button>
           </footer>
         </div>
       </div>
     </transition>
 
-    <!-- Detail Modal -->
+    <!-- 详情弹窗 -->
     <transition name="fade-zoom">
       <div class="modal-overlay" v-if="detailEntry">
         <div class="modal detail-modal">
@@ -149,8 +156,7 @@ import {
   likeWiki,
 } from "@/api/modules/wiki";
 
-// 本地存储自己创建的词条 ID
-const LS_MY_WIKI_IDS = "yuzuriha:wiki:my_ids";
+const LS_MY_WIKI_IDS = "qiuyuan_wiki_my_ids";
 const myWikiIds: string[] = JSON.parse(
   localStorage.getItem(LS_MY_WIKI_IDS) || "[]"
 );
@@ -162,12 +168,8 @@ const markAsMine = (id: string | number) => {
 };
 const canEdit = (id: string | number) => myWikiIds.includes(String(id));
 
-// 数据状态
 const entries = ref<any[]>([]);
-
-// 本地存储键
-const LS_LIKED_IDS = "yuzuriha:wiki:liked_ids";
-// 从 localStorage 读取已点赞 id 列表（字符串形式）
+const LS_LIKED_IDS = "qiuyuan_wiki_liked_ids";
 const likedIds = ref<string[]>(
   JSON.parse(localStorage.getItem(LS_LIKED_IDS) || "[]")
 );
@@ -179,18 +181,16 @@ const detailEntry = ref<any>(null);
 const form = reactive({ title: "", slug: "", author: "", content: "" });
 const search = ref("");
 
-// 时间格式化
 function formatTime(ts: string | number | null | undefined) {
-  if (!ts) return "未知时间";
+  if (!ts) return "未知";
   const date = new Date(ts);
-  if (isNaN(date.getTime())) return "未知时间";
+  if (isNaN(date.getTime())) return "未知";
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
     2,
     "0"
   )}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-// 加载词条列表
 async function loadEntries() {
   try {
     const res: any = await getWikiList();
@@ -201,23 +201,23 @@ async function loadEntries() {
     }));
   } catch (err) {
     console.error(err);
-    ElMessage.error("加载词条失败");
+    ElMessage.error("加载秘典失败");
   }
 }
 
-// 打开/关闭弹窗
 function openCreate() {
   editing.value = false;
   editingId.value = null;
   form.title = "";
   form.slug = "";
-
+  form.author = "";
   form.content = "";
   showModal.value = true;
 }
+
 function openEdit(entry: any) {
   if (!canEdit(entry.id)) {
-    ElMessage.warning("只有创建者可以编辑");
+    ElMessage.warning("仅有撰者可以修撰");
     return;
   }
   editing.value = true;
@@ -228,34 +228,34 @@ function openEdit(entry: any) {
   form.content = entry.content;
   showModal.value = true;
 }
+
 function closeModal() {
   showModal.value = false;
 }
 
 const canSubmit = computed(() => form.title.trim() && form.content.trim());
 
-// 提交
 async function submit() {
   if (!canSubmit.value) {
-    ElMessage.warning("请填写标题和内容");
+    ElMessage.warning("剑谱之名与秘典正文不可为空");
     return;
   }
-  const payload = {
+  const payload: any = {
     title: form.title.trim(),
-    author: form.author.trim() || "匿名",
+    author: form.author.trim() || "无名",
     content: form.content.trim(),
-    slug: null,
   };
   if (form.slug.trim()) payload.slug = form.slug.trim();
+
   try {
     if (editing.value && editingId.value) {
       await updateWiki(editingId.value, payload);
-      ElMessage.success("编辑成功");
+      ElMessage.success("秘典已修撰");
     } else {
       const res: any = await createWiki(payload);
       markAsMine(res.data.id);
       editingId.value = res.data.id;
-      ElMessage.success("创建成功");
+      ElMessage.success("秘典已入阁");
     }
     showModal.value = false;
     loadEntries();
@@ -265,41 +265,33 @@ async function submit() {
   }
 }
 
-// 删除
 async function remove(id: string | number) {
   if (!canEdit(id)) {
-    ElMessage.warning("只有创建者可以删除");
+    ElMessage.warning("仅有撰者可以焚毁");
     return;
   }
-  if (!confirm("确认删除该词条？此操作不可撤销")) return;
+  if (!confirm("确认焚毁此秘典？此操作不可逆转")) return;
   try {
     await deleteWiki(id);
     const index = myWikiIds.indexOf(String(id));
     if (index !== -1) myWikiIds.splice(index, 1);
     localStorage.setItem(LS_MY_WIKI_IDS, JSON.stringify(myWikiIds));
-    ElMessage.success("删除成功");
+    ElMessage.success("秘典已焚毁");
     loadEntries();
   } catch (err) {
     console.error(err);
-    ElMessage.error("删除失败");
+    ElMessage.error("焚毁失败");
   }
 }
 
-// 点赞
 function persistLikedIds() {
-  try {
-    localStorage.setItem(LS_LIKED_IDS, JSON.stringify(likedIds.value));
-  } catch (e) {
-    console.warn("保存 likedIds 失败", e);
-  }
+  localStorage.setItem(LS_LIKED_IDS, JSON.stringify(likedIds.value));
 }
 
-// 判断是否已点赞（供模板绑定 class/aria-pressed）
 function isLiked(id: string | number) {
   return likedIds.value.includes(String(id));
 }
 
-// 点赞 / 取消点赞（乐观更新，本地仅存 id，点赞数使用 entry.likes）
 async function toggleLike(id: string | number) {
   const entry = entries.value.find((e) => e.id === id);
   if (!entry) return;
@@ -307,37 +299,24 @@ async function toggleLike(id: string | number) {
   const idStr = String(id);
   const wasLiked = likedIds.value.includes(idStr);
 
-  // 乐观更新 UI（立即反映）
   if (wasLiked) {
-    // 取消点赞：保证不低于 0
     entry.likes = Math.max(0, (entry.likes || 0) - 1);
     likedIds.value = likedIds.value.filter((x) => x !== idStr);
   } else {
-    // 点赞
     entry.likes = (entry.likes || 0) + 1;
     likedIds.value.push(idStr);
   }
   persistLikedIds();
 
   try {
-    // 调用后端（action: 'like' | 'unlike' | 'toggle'）
-    // 我们明确传 'like' 或 'unlike'
     const action = wasLiked ? "unlike" : "like";
     await likeWiki(id, action);
-
-    // 可选：如果后端在响应中返回了最新的 likes 数（res.data.likes），
-    // 你可以在这里用后端值覆盖本地（示例注释）
-    // const res = await likeWiki(id, action)
-    // if (res?.data?.likes !== undefined) entry.likes = res.data.likes
   } catch (err) {
-    // 出错则回滚乐观更新
     console.error("toggleLike error", err);
     if (wasLiked) {
-      // 取消点赞失败 -> 重新标记为已点赞
       entry.likes = (entry.likes || 0) + 1;
       if (!likedIds.value.includes(idStr)) likedIds.value.push(idStr);
     } else {
-      // 点赞失败 -> 取消之前增加的 count
       entry.likes = Math.max(0, (entry.likes || 0) - 1);
       likedIds.value = likedIds.value.filter((x) => x !== idStr);
     }
@@ -346,19 +325,15 @@ async function toggleLike(id: string | number) {
   }
 }
 
-// 详情弹窗
-async function openDetail(entry: any) {
+function openDetail(entry: any) {
   detailEntry.value = entry;
 }
 
-// 搜索过滤
 const filteredEntries = computed(() => {
   const q = String(search.value || "")
     .trim()
     .toLowerCase();
   let list = entries.value;
-
-  // 搜索过滤
   if (q) {
     list = list.filter(
       (e) =>
@@ -366,12 +341,10 @@ const filteredEntries = computed(() => {
         (e.slug || "").toLowerCase().includes(q)
     );
   }
-
-  // 按点赞数排序（默认降序：点赞多的在前）
   return [...list].sort((a, b) => (b.likes || 0) - (a.likes || 0));
 });
 
-// 1. 分别导入两套图
+// 背景轮播
 const pcModules = import.meta.glob("@/assets/images1/*.{jpg,png,jpeg,webp}", {
   eager: true,
 });
@@ -379,13 +352,11 @@ const mobileModules = import.meta.glob(
   "@/assets/images2/*.{jpg,png,jpeg,webp}",
   { eager: true }
 );
-
 const pcSrcs: string[] = Object.values(pcModules).map((m: any) => m.default);
 const mobileSrcs: string[] = Object.values(mobileModules).map(
   (m: any) => m.default
 );
 
-// 洗牌函数
 function shuffle<T>(arr: T[]): T[] {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -396,25 +367,30 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 const randomFive = ref<string[]>([]);
+const randomFive2 = ref<string[]>([]);
 const currentIndex = ref(0);
 let timer: number;
 
 function pickImages() {
   const isMobile = window.innerWidth < 768;
-  const all = isMobile ? mobileSrcs : pcSrcs;
-  randomFive.value = shuffle(all).slice(0, 5);
+  if (isMobile) {
+    randomFive2.value = shuffle(mobileSrcs).slice(0, 5);
+    randomFive.value = [];
+  } else {
+    randomFive.value = shuffle(pcSrcs).slice(0, 5);
+    randomFive2.value = [];
+  }
 }
 
 onMounted(() => {
   loadEntries();
-  pickImages(); // 首次判断
-  // 监听窗口大小变化
+  pickImages();
   window.addEventListener("resize", pickImages);
-
-  // 轮播
   timer = window.setInterval(() => {
-    if (randomFive.value.length > 0) {
-      currentIndex.value = (currentIndex.value + 1) % randomFive.value.length;
+    const active =
+      window.innerWidth < 768 ? randomFive2.value : randomFive.value;
+    if (active.length > 0) {
+      currentIndex.value = (currentIndex.value + 1) % active.length;
     }
   }, 5000);
 });
@@ -426,78 +402,103 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-/* 仇远风格：竹月剑影（墨青 / 翠绿 / 月银）*/
-.wiki-page {
+/* ========== 仇远色彩变量 ========== */
+.qiuyuan-wiki {
+  --bamboo-green: #2e8f74;
+  --blade-silver: #cfeee8;
+  --moon-light: #b4e6e2;
+  --deep-ink: #0b1a16;
+  --night-base: #050a0c;
+  --text-primary: #f0faf8;
+  --text-secondary: rgba(207, 238, 232, 0.7);
+  --card-bg: rgba(5, 10, 12, 0.6);
+  --card-border: rgba(46, 143, 116, 0.2);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+
   min-height: 100vh;
-  color: #e8f6f4; /* 冷白文字 */
+  color: var(--text-primary);
   padding: 16px;
-  box-sizing: border-box;
   padding-top: 80px;
-  background: linear-gradient(180deg, #041617 0%, #052425 100%); /* 寒月底色 */
+  box-sizing: border-box;
+  background: var(--night-base);
+  font-family: "Noto Serif SC", "STKaiti", "KaiTi", serif;
+  position: relative;
+  overflow-x: hidden;
 
+  /* 轮播背景 */
   .carousel {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    z-index: -9;
+    z-index: 0;
+    pointer-events: none;
 
-    /* 底层图片叠放，通过 opacity 切换 */
     .carousel-image {
       position: absolute;
       width: 100%;
       height: 100%;
       object-fit: cover;
       opacity: 0;
-      transition: opacity 1s ease;
-      filter: blur(1.5px) grayscale(6%); /* 轻微模糊并降低饱和，使前景更突出 */
+      transition: opacity 1.2s ease;
+      filter: brightness(0.8) saturate(0.7);
+      &.active {
+        opacity: 1;
+      }
     }
 
-    .carousel-image.active {
-      opacity: 1;
+    .carousel-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+          circle at 30% 40%,
+          rgba(6, 16, 18, 0.2),
+          rgba(5, 10, 12, 0.45)
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px,
+          rgba(46, 143, 116, 0.02) 2px,
+          transparent 4px
+        );
+      z-index: 1;
     }
   }
-
-  /* 冷月遮罩（替代暖色遮罩） */
-  .carousel::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(6, 22, 24, 0.36),
-      rgba(3, 10, 12, 0.46)
-    ); /* 更偏向冷色的遮罩 */
-    pointer-events: none;
-    z-index: 1;
+  .carousel2 {
+    display: none;
   }
 
+  /* 页眉 */
   .wiki-header {
+    position: relative;
+    z-index: 2;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 12px;
-    background: linear-gradient(
-      90deg,
-      rgba(44, 143, 116, 0.06),
-      rgba(195, 238, 232, 0.03)
-    ); /* 竹叶 + 月色 的超细渐变 */
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(2, 6, 8, 0.6),
-      0 0 28px rgba(45, 180, 150, 0.02) inset;
+    padding: 16px 20px;
+    background: var(--card-bg);
+    backdrop-filter: blur(2px);
+    border-radius: 16px;
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(46, 143, 116, 0.1);
+    border: 1px solid var(--card-border);
     flex-wrap: wrap;
-    border: 1px solid rgba(80, 140, 120, 0.04);
+    margin-bottom: 20px;
 
     .title {
       h1 {
         margin: 0;
-        font-size: 18px;
-        color: #2e8f74; /* 竹叶绿 */
-        font-weight: 600;
+        font-family: "ZCOOL KuaiLe", "STKaiti", serif;
+        font-size: 2rem;
+        letter-spacing: 4px;
+        background: linear-gradient(135deg, #fff, var(--blade-silver));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 20px rgba(46, 143, 116, 0.4);
       }
-
       .subtitle {
-        font-size: 12px;
-        color: #cfeee8; /* 月色浅绿/银 */
+        font-size: 0.9rem;
+        color: var(--moon-light);
+        letter-spacing: 2px;
+        margin-top: 4px;
       }
     }
 
@@ -509,203 +510,185 @@ onUnmounted(() => {
     }
 
     .search {
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: 1px solid rgba(207, 238, 232, 0.08);
-      background: rgba(8, 18, 18, 0.36);
-      color: #e8f6f4;
-      font-size: 13px;
-      box-shadow: inset 0 2px 6px rgba(207, 238, 232, 0.02);
-      transition: all 0.25s;
-
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: rgba(0, 0, 0, 0.3);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      &::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.6;
+      }
       &:focus {
-        border-color: #9fe8da;
-        box-shadow: 0 0 8px rgba(159, 232, 218, 0.16);
-        outline: none;
+        border-color: var(--bamboo-green);
+        box-shadow: 0 0 12px rgba(46, 143, 116, 0.3);
       }
     }
 
     .btn-new {
-      background: linear-gradient(135deg, #2e8f74, #cfeee8);
-      color: #052425;
-      border: none;
+      background: linear-gradient(135deg, var(--bamboo-green), var(--deep-ink));
+      color: #fff;
+      border: 1px solid var(--blade-silver);
       border-radius: 12px;
-      padding: 8px 16px;
-      font-size: 14px;
-      font-weight: 500;
+      padding: 10px 22px;
+      font-size: 0.95rem;
+      font-family: "ZCOOL KuaiLe", "STKaiti", serif;
+      font-weight: 600;
+      letter-spacing: 2px;
       cursor: pointer;
-      box-shadow: 0 6px 18px rgba(46, 143, 116, 0.18);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.25s ease;
-
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4),
+        0 0 10px rgba(46, 143, 116, 0.3);
+      transition: all 0.3s ease;
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 28px rgba(46, 143, 116, 0.22);
-        background: linear-gradient(135deg, #3ebf9c, #e6fbf7);
-      }
-
-      &:active {
-        transform: translateY(0);
-        box-shadow: 0 4px 12px rgba(46, 143, 116, 0.12);
-      }
-
-      &:after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(
-          circle,
-          rgba(255, 255, 255, 0.08) 0%,
-          transparent 60%
-        );
-        opacity: 0;
-        transition: all 0.32s;
-      }
-
-      &:hover:after {
-        opacity: 1;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(46, 143, 116, 0.5);
       }
     }
   }
 
+  /* 列表 */
   .wiki-body {
-    margin-top: 12px;
-
+    position: relative;
+    z-index: 2;
     .empty {
       text-align: center;
-      padding: 40px 16px;
-      color: #cfeee8;
+      padding: 60px 16px;
+      color: var(--text-secondary);
+      font-style: italic;
+      letter-spacing: 2px;
+      font-size: 1.1rem;
     }
+  }
 
-    .entry-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 16px;
+  .entry-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 16px;
 
-      .entry-card {
-        background: linear-gradient(
-          180deg,
-          rgba(4, 14, 18, 0.88),
-          rgba(6, 20, 20, 0.86)
-        );
-        border-radius: 12px;
-        padding: 12px;
-        box-shadow: 0 12px 28px rgba(2, 6, 8, 0.7);
-        transition: all 0.25s ease;
-        opacity: 0.96;
-        border: 1px solid rgba(46, 143, 116, 0.03);
-        overflow: hidden;
+    .entry-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(1px);
+      border-radius: 14px;
+      padding: 16px 20px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+      &:hover {
+        border-color: var(--bamboo-green);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6),
+          0 0 16px rgba(46, 143, 116, 0.2);
+      }
 
-        &:hover {
-          background: linear-gradient(145deg, #052a27, #083436);
-          box-shadow: 0 18px 36px rgba(46, 143, 116, 0.16);
+      .entry-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        .entry-meta {
+          flex: 1;
+          cursor: pointer;
+          .entry-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+          }
+          .entry-title {
+            font-size: 1.2rem;
+            margin: 0;
+            color: var(--blade-silver);
+            font-weight: 700;
+            letter-spacing: 1px;
+          }
+          .entry-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(46, 143, 116, 0.2);
+            color: var(--moon-light);
+            font-size: 0.75rem;
+            border: 1px solid var(--card-border);
+          }
+          .entry-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            .meta-item {
+              font-size: 0.8rem;
+              color: var(--text-secondary);
+              padding: 2px 8px;
+              background: rgba(46, 143, 116, 0.08);
+              border-radius: 6px;
+            }
+          }
         }
 
-        .entry-head {
+        .entry-actions {
           display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
           gap: 8px;
+          align-items: center;
           flex-wrap: wrap;
 
-          .entry-meta {
-            flex: 1;
+          .like {
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             cursor: pointer;
-
-            .entry-title-wrap {
-              display: flex;
-              align-items: center;
-              gap: 8px;
+            padding: 4px 8px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            img {
+              width: 20px;
+              height: 20px;
+              filter: drop-shadow(0 0 4px var(--bamboo-green));
             }
-
-            .entry-title {
-              font-size: 16px;
-              margin: 0;
-              color: #cfeee8; /* 月色主标题 */
+            .like-count {
+              font-size: 0.9rem;
+              color: var(--text-primary);
               font-weight: 600;
             }
-
-            .entry-badge {
-              display: inline-block;
-              padding: 2px 8px;
-              border-radius: 999px;
-              background: rgba(46, 143, 116, 0.08);
-              color: #d7e9ee;
-              font-size: 12px;
-              border: 1px solid rgba(46, 143, 116, 0.06);
-            }
-
-            .entry-info {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 8px;
-              margin-top: 6px;
-
-              .meta-item {
-                font-size: 12px;
-                color: #d7e9ee;
-                background: rgba(46, 143, 116, 0.06);
-                border-radius: 6px;
-                padding: 2px 8px;
-                display: flex;
-                align-items: center;
-              }
+            &.active {
+              background: rgba(46, 143, 116, 0.15);
             }
           }
 
-          .entry-actions {
+          .edit-delete {
             display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
+            gap: 6px;
+          }
 
-            .like {
-              background: transparent;
-              border: none;
-              display: flex;
-              align-items: center;
-              gap: 6px;
-              cursor: pointer;
-              transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
-
-              img {
-                width: 20px;
-                height: 20px;
-                filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.3));
-              }
-
-              .like-count {
-                font-size: 13px;
-                color: #d7e9ee;
-              }
-
-              &.active {
-                transform: scale(1.12);
-                box-shadow: 0 6px 14px rgba(46, 143, 116, 0.08);
-              }
+          .small {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(46, 143, 116, 0.1);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            &:hover {
+              background: rgba(46, 143, 116, 0.2);
+              border-color: var(--bamboo-green);
             }
-
-            .edit-delete {
-              display: flex;
-              gap: 6px;
-            }
-
-            .small {
-              padding: 8px 10px;
-              border-radius: 8px;
-              background: rgba(255, 255, 255, 0.02);
-              border: 1px solid rgba(255, 255, 255, 0.03);
-              color: #e8f6f4;
-              font-size: 13px;
-            }
-
-            .danger {
-              background: transparent;
-              color: #ff7b7b;
-              border: 1px solid rgba(255, 100, 100, 0.08);
+          }
+          .danger {
+            color: #ff7b7b;
+            border-color: rgba(255, 100, 100, 0.15);
+            &:hover {
+              background: rgba(255, 100, 100, 0.1);
+              border-color: rgba(255, 100, 100, 0.3);
             }
           }
         }
@@ -713,73 +696,89 @@ onUnmounted(() => {
     }
   }
 
-  /* Modal（冷色玻璃） */
+  /* 弹窗 */
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(2, 8, 10, 0.6);
+    background: rgba(5, 10, 12, 0.85);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 100;
+    padding: 20px;
 
     .modal {
       width: min(720px, 94%);
       max-height: 90vh;
       overflow-y: auto;
-      background: linear-gradient(
-        180deg,
-        rgba(5, 18, 20, 0.86),
-        rgba(6, 20, 22, 0.92)
-      );
-      backdrop-filter: blur(8px) saturate(1.05);
-      border-radius: 14px;
-      padding: 14px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
-      border: 1px solid rgba(46, 143, 116, 0.04);
+      background: rgba(6, 16, 18, 0.95);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--card-border);
 
       .modal-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-bottom: 8px;
-
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--card-border);
         h3 {
           margin: 0;
-          color: #cfeee8;
+          font-family: "ZCOOL KuaiLe", serif;
+          color: var(--blade-silver);
+          letter-spacing: 2px;
         }
-
         .close {
-          background: transparent;
+          background: none;
           border: none;
-          font-size: 18px;
-          color: #d7e9ee;
+          color: var(--text-secondary);
+          font-size: 1.2rem;
           cursor: pointer;
+          &:hover {
+            color: var(--blade-silver);
+          }
         }
       }
 
       .modal-body {
-        color: #e8f6f4;
-        font-size: 14px;
-        line-height: 1.6;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 14px;
         .detail-content {
           white-space: pre-wrap;
+          line-height: 1.8;
         }
         label {
           display: flex;
           flex-direction: column;
-          gap: 4px;
-
+          gap: 6px;
+          font-size: 0.9rem;
+          color: var(--text-secondary);
           input,
           textarea {
-            background: rgba(255, 255, 255, 0.02);
-            color: #e8f6f4;
-            border: 1px solid rgba(207, 238, 232, 0.06);
-            border-radius: 8px;
-            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s;
+            &::placeholder {
+              color: var(--text-secondary);
+              opacity: 0.5;
+            }
+            &:focus {
+              border-color: var(--bamboo-green);
+              box-shadow: 0 0 8px rgba(46, 143, 116, 0.3);
+            }
+          }
+          textarea {
+            resize: vertical;
           }
         }
       }
@@ -788,119 +787,69 @@ onUnmounted(() => {
         display: flex;
         justify-content: flex-end;
         gap: 12px;
-        margin-top: 12px;
-
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--card-border);
         .btn {
-          background: linear-gradient(135deg, #2e8f74, #cfeee8);
-          color: #052425;
-          padding: 8px 16px;
+          background: linear-gradient(
+            135deg,
+            var(--bamboo-green),
+            var(--deep-ink)
+          );
+          color: #fff;
+          padding: 10px 24px;
           border-radius: 12px;
           border: none;
+          font-family: "ZCOOL KuaiLe", serif;
+          font-weight: 600;
+          letter-spacing: 2px;
           cursor: pointer;
-          box-shadow: 0 8px 20px rgba(46, 143, 116, 0.12);
+          transition: all 0.3s;
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(46, 143, 116, 0.4);
+          }
         }
-
         .btn.ghost {
           background: transparent;
-          border: 1px solid rgba(207, 238, 232, 0.06);
-          color: #d7e9ee;
+          border: 1px solid var(--card-border);
+          color: var(--text-secondary);
+          &:hover {
+            border-color: var(--blade-silver);
+            color: var(--text-primary);
+          }
         }
       }
     }
   }
 
-  /* 交互过渡 */
+  /* 过渡动画 */
   .fade-zoom-enter-active,
   .fade-zoom-leave-active {
     transition: all 0.3s ease;
   }
-
   .fade-zoom-enter-from,
   .fade-zoom-leave-to {
     opacity: 0;
     transform: scale(0.96);
   }
-}
 
-/* 移动端优化 */
-@media (max-width: 720px) {
-  .wiki-header {
-    flex-direction: column;
-  }
+  /* 移动端适配 */
+  @media (max-width: 768px) {
+    .carousel1 {
+      display: none;
+    }
+    .carousel2 {
+      display: block;
+    }
 
-  .entry-list {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .modal {
-    width: 94%;
-    max-height: 94vh;
-  }
-
-  .entry-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .entry-actions .like,
-  .entry-actions .edit-delete {
-    width: 100%;
-    display: flex;
-    align-items: center;
-  }
-
-  .entry-actions .like {
-    justify-content: flex-start;
-    padding: 8px 10px;
-  }
-
-  .entry-actions .like img {
-    margin-right: 8px;
-  }
-
-  .entry-actions .edit-delete {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .entry-actions .small {
-    width: 100%;
-    box-sizing: border-box;
-    justify-content: center;
-  }
-}
-
-/* 小幅的装饰性动效（竹风 / 月光） */
-@keyframes breeze-drift {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 0.95;
-  }
-  50% {
-    transform: translateY(-6px) rotate(1deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 0.95;
-  }
-}
-
-@keyframes moon-glint {
-  0% {
-    transform: translateY(0);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateY(-4px);
-    opacity: 1;
-    filter: drop-shadow(0 6px 14px rgba(159, 232, 218, 0.06));
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 0.7;
+    .wiki-header {
+      flex-direction: column;
+      align-items: stretch;
+      .title h1 {
+        font-size: 1.6rem;
+      }
+    }
   }
 }
 </style>
