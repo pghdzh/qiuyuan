@@ -16,7 +16,6 @@
       <div v-if="isOpen" class="overlay" @click.self="isOpen = false">
         <!-- 动态竹林背景 -->
         <div class="bamboo-bg">
-          <!-- 原有元素保持不变 -->
           <div class="moon-main"></div>
           <div class="moon-sub"></div>
           <div class="bamboo-forest left-forest"></div>
@@ -34,11 +33,9 @@
           <div class="firefly firefly-6"></div>
           <div class="sword-light sword-light-1"></div>
           <div class="sword-light sword-light-2"></div>
-          <div class="mist"></div>
-
-          <!-- 新增装饰 -->
-          <div class="hat-silhouette"></div>
           <div class="sword-light sword-light-3"></div>
+          <div class="mist"></div>
+          <div class="hat-silhouette"></div>
           <div class="ink-drop ink-drop-1"></div>
           <div class="ink-drop ink-drop-2"></div>
           <div class="rain"></div>
@@ -46,20 +43,16 @@
 
         <!-- 石碑容器 -->
         <div class="stele-container">
-          <!-- 碑帽 -->
           <div class="stele-cap">
             <span class="cap-text">青冥剑影</span>
             <span class="cap-sub">藏锋于竹</span>
           </div>
-
-          <!-- 碑身导航 -->
           <div class="stele-body">
             <template v-for="(item, index) in navItems" :key="item.name">
               <RouterLink
                 v-if="!item.external"
                 :to="item.path"
                 class="stele-item"
-                :class="{ 'active-item': false }"
                 active-class="active-item"
                 @click="closeNav"
               >
@@ -79,8 +72,6 @@
               </a>
             </template>
           </div>
-
-          <!-- 碑座 -->
           <div class="stele-base">
             <div v-if="onlineCount !== null" class="base-info">
               <span class="base-dot"></span> 江湖行者 {{ onlineCount }} 人
@@ -94,6 +85,20 @@
         </button>
       </div>
     </Transition>
+
+    <!-- 独立的 BGM 控制与歌词显示（始终可见） -->
+    <div class="bgm-controls">
+      <div class="lyric-bar" v-if="currentLyricText">
+        <span class="current-lyric">{{ currentLyricText }}</span>
+      </div>
+      <button
+        class="bgm-btn"
+        @click="toggleBgm"
+        :title="bgmPlaying ? '暂停' : '播放'"
+      >
+        {{ bgmPlaying ? "我" : "肘" }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -101,6 +106,7 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { io } from "socket.io-client";
 
+// 导航相关
 const isOpen = ref(false);
 function closeNav() {
   isOpen.value = false;
@@ -124,18 +130,236 @@ const navItems = [
 const onlineCount = ref<number | null>(null);
 const siteId = "qiuyuan";
 let socket: any = null;
+
+// BGM 相关
+const bgmAudio = ref<HTMLAudioElement | null>(null);
+const bgmPlaying = ref(false);
+const currentLyricText = ref("");
+const lyricLines = ref<{ time: number; text: string }[]>([]);
+
+// 初始化音频（只执行一次）
+function initBgm() {
+  if (bgmAudio.value) return;
+  bgmAudio.value = new Audio();
+  bgmAudio.value.src = import.meta.env.VITE_API_BASE_URL + "/music/肘我.mp3";
+  bgmAudio.value.loop = true;
+  bgmAudio.value.volume = 0.5;
+  bgmAudio.value.addEventListener("play", () => (bgmPlaying.value = true));
+  bgmAudio.value.addEventListener("pause", () => (bgmPlaying.value = false));
+  bgmAudio.value.addEventListener("timeupdate", updateLyric);
+}
+
+// 播放/暂停切换
+function toggleBgm() {
+  if (!bgmAudio.value) {
+    initBgm();
+  }
+  if (bgmPlaying.value) {
+    bgmAudio.value?.pause();
+  } else {
+    bgmAudio.value?.play().catch(() => {});
+  }
+}
+
+// 加载并解析 LRC 歌词
+async function loadLyric() {
+  try {
+    const res = await fetch("/肘我.lrc");
+    if (!res.ok) return;
+    const text = await res.text();
+    const lines = text.split("\n");
+    const parsed: { time: number; text: string }[] = [];
+    const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+    for (const line of lines) {
+      const match = line.match(timeRegex);
+      if (match) {
+        const min = parseInt(match[1]);
+        const sec = parseInt(match[2]);
+        const ms = parseInt(match[3].padEnd(3, "0"));
+        const time = min * 60 + sec + ms / 1000;
+        const text = line.replace(timeRegex, "").trim();
+        if (text) {
+          parsed.push({ time, text });
+        }
+      }
+    }
+    lyricLines.value = parsed;
+  } catch (e) {
+    console.warn("歌词加载失败", e);
+  }
+}
+
+// 根据当前时间更新显示歌词
+function updateLyric() {
+  if (!bgmAudio.value || lyricLines.value.length === 0) return;
+  const currentTime = bgmAudio.value.currentTime;
+  // 找到最后一个时间 <= 当前时间的歌词
+  let lastText = "";
+  for (const line of lyricLines.value) {
+    if (currentTime >= line.time) {
+      lastText = line.text;
+    } else {
+      break;
+    }
+  }
+  if (lastText !== currentLyricText.value) {
+    currentLyricText.value = lastText;
+  }
+}
+
 onMounted(() => {
   socket = io(import.meta.env.VITE_API_BASE_URL, { query: { siteId } });
   socket.on("onlineCount", (count: number) => {
     onlineCount.value = count;
   });
+
+  // 初始化 BGM 组件（但不自动播放）
+  initBgm();
+  loadLyric();
 });
+
 onBeforeUnmount(() => {
   if (socket) socket.disconnect();
+  if (bgmAudio.value) {
+    bgmAudio.value.pause();
+    bgmAudio.value.removeEventListener("timeupdate", updateLyric);
+    bgmAudio.value = null;
+  }
 });
 </script>
-
 <style scoped lang="scss">
+.bgm-controls {
+  position: fixed;
+  right: 124px; // 桌面端与右下角导航按钮水平错开
+  bottom: 24px;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  pointer-events: none;
+
+  & > * {
+    pointer-events: auto;
+  }
+}
+
+.bgm-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(5, 12, 14, 0.65);
+  backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(46, 143, 116, 0.5);
+  box-shadow: 0 0 16px rgba(46, 143, 116, 0.25),
+    inset 0 0 10px rgba(180, 230, 226, 0.06);
+  color: #cfeee8;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
+  animation: btnPulse 3s ease-in-out infinite;
+  position: relative;
+
+  &:hover {
+    border-color: #2e8f74;
+    box-shadow: 0 0 30px rgba(46, 143, 116, 0.65),
+      inset 0 0 14px rgba(180, 230, 226, 0.1);
+    transform: scale(1.08);
+    animation: none;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+@keyframes btnPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 16px rgba(46, 143, 116, 0.25),
+      inset 0 0 10px rgba(180, 230, 226, 0.06);
+  }
+  50% {
+    box-shadow: 0 0 26px rgba(46, 143, 116, 0.45),
+      inset 0 0 14px rgba(180, 230, 226, 0.08);
+  }
+}
+
+.lyric-bar {
+  background: rgba(5, 12, 14, 0.58);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(46, 143, 116, 0.35);
+  border-radius: 32px;
+  padding: 10px 22px;
+  max-width: 360px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(207, 238, 232, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba(46, 143, 116, 0.6);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(207, 238, 232, 0.15);
+  }
+
+  .current-lyric {
+    display: block;
+    color: #f0faf8;
+    font-family: "Noto Serif SC", "STKaiti", serif;
+    font-size: 0.95rem;
+    letter-spacing: 1.5px;
+    text-shadow: 0 0 8px rgba(46, 143, 116, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: linear-gradient(90deg, #cfeee8, #f0faf8, #cfeee8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% auto;
+    animation: textShimmer 4s linear infinite;
+  }
+}
+
+@keyframes textShimmer {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* ========== 响应式调整 ========== */
+@media (max-width: 768px) {
+  .bgm-controls {
+    // 移动端移到左下角，避开右下角的导航按钮
+    right: 82px;
+    bottom: 20px;
+    gap: 10px;
+  }
+
+  .bgm-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+  }
+
+  .lyric-bar {
+    max-width: 200px;
+    padding: 8px 16px;
+    border-radius: 24px;
+
+    .current-lyric {
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+  }
+}
+
+
 /* ========== 仇远色彩变量 ========== */
 .qiuyuan-app {
   --bamboo-green: #2e8f74;
@@ -174,7 +398,6 @@ onBeforeUnmount(() => {
     font-size: 1.2rem;
     color: var(--blade-silver);
     filter: drop-shadow(0 0 6px var(--bamboo-green));
-    
   }
   .trigger-ring {
     position: absolute;
@@ -192,7 +415,6 @@ onBeforeUnmount(() => {
   &.active {
     background: var(--bamboo-green);
     border-color: var(--blade-silver);
-   
   }
 }
 
